@@ -15,7 +15,7 @@
 #define FEATURE_TRIM  4
 
 /* Page alignment size, 1 means no alignment at all. */
-#define FEATURE_PAGE_SIZE 4
+#define FEATURE_PAGE_SIZE 5
 
 /* Unix-like seek modes. */
 #define SEEK_SET 0
@@ -30,13 +30,13 @@ struct device_t {
   void *data;
   int free;
   
-  int (*feature)(int id, int feature);
+  int (*feature)(device_t *device, int feature);
   
-  size_t (*write)(int id, void *buffer, size_t size);
-  size_t (*read)(int id, void *buffer, size_t size);
-  void   (*seek)(int id, ssize_t offset, int seek_mode);
-  size_t (*tell)(int id);
-  void   (*trim)(int id);
+  size_t (*write)(device_t *device, void *buffer, size_t size);
+  size_t (*read)(device_t *device, void *buffer, size_t size);
+  void   (*seek)(device_t *device, ssize_t offset, int seek_mode);
+  size_t (*tell)(device_t *device);
+  void   (*trim)(device_t *device);
 };
 
 extern device_t *devices;

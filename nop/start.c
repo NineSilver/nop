@@ -54,7 +54,10 @@ void start(const start_block_t *blocks, int block_count, const start_task_t *tas
   log(LOG_INFO, "Hello, world!\n");
   */
   
+  const char *text = "Hello, world!\n";
   
+  device_t *console = device_find("serial0");
+  console->write(console, text, strlen(text));
   
   /* 6. Boot? */
   
