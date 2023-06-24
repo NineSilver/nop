@@ -7,7 +7,7 @@
    boot, instead, it's what's called right after all the
    architecture-specific blobs. */
 
-void start(const start_block_t *blocks, int block_count, const start_device_t *devices, int device_count) {
+void start(const start_block_t *blocks, int block_count, const start_task_t *tasks, int task_count) {
   /* 1. Setup page bitmap allocator. */
   
   for (int i = 0; i < block_count; i++) {
@@ -30,15 +30,33 @@ void start(const start_block_t *blocks, int block_count, const start_device_t *d
   
   alloc_init(...); /* TODO */
   
-  /* 3. Initialize passed in devices. */
+  /* 3. Setup device and filesystem handling. */
   
-  for (int i = 0; i < device_count; i++) {
-    /* TODO */
+  /* TODO */
+  
+  /* 4. Run all initialization tasks. */
+  
+  for (int i = 0; i < task_count; i++) {
+    tasks[i].func();
   }
   
-  /* 4. Try to establish a console to log information to. */
+  /*
+  "/.hdd0/0/boot/grub.cfg"
+  "/.eth0/"
+  "/.cdrom0/autorun.inf"
+  "/.mouse0"
+  */
   
-  /* 5. Boot? */
+  /* 5. Try to establish a console to log information to. */
+  
+  /*
+  log_init();
+  log(LOG_INFO, "Hello, world!\n");
+  */
+  
+  
+  
+  /* 6. Boot? */
   
   /* It's not like we can do much more here either... */
   for (;;);
