@@ -9,3 +9,7 @@ cd tools
   tar -xvf vbcc_linux_x64.tar.gz
   rm -f vbcc_linux_x64.tar.gz
 cd ..
+
+cd include/arch/x86
+  wget http://git.savannah.gnu.org/cgit/grub.git/plain/doc/multiboot2.h?h=multiboot2 -O multiboot2.h
+cd ../../..
