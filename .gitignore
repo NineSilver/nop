@@ -2,10 +2,4 @@ include/arch/x86/multiboot2.h
 build
 tools
 
-*/*/*/*/*/*/*.o
-*/*/*/*/*/*.o
-*/*/*/*/*.o
-*/*/*/*.o
-*/*/*.o
-*/*.o
-*.o
+**/*.o
