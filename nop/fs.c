@@ -1,12 +1,14 @@
 #include <nop/fs.h>
 
 const fs_type_t fs_types[] = {
+  /*
   (fs_type_t){
     .name = "MBR",
     
     .init = mbr_init,
     .free = mbr_free,
   },
+  */
 };
 
 const int fs_type_count = sizeof(fs_types) / sizeof(fs_type_t);
@@ -14,7 +16,7 @@ const int fs_type_count = sizeof(fs_types) / sizeof(fs_type_t);
 fs_t fs_root;
 
 void fs_init(void) {
-  /* TODO: Setup fs_root. */
+  /* TODO */
 }
 
 int fs_open(const char *path) {

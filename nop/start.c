@@ -3,6 +3,7 @@
 #include <nop/start.h>
 #include <nop/page.h>
 #include <nop/fs.h>
+#include <string.h>
 #include <alloc.h>
 
 static void *alloc_page_alloc(size_t *n) {
@@ -20,10 +21,12 @@ static void alloc_page_free(void *ptr, size_t n) {
    boot, instead, it's what's called right after all the
    architecture-specific blobs. */
 
-void start(const start_block_t *blocks, int block_count, const start_task_t *tasks, int task_count) {
+void start(start_block_t *blocks, int block_count, start_task_t *tasks, int task_count) {
+  int i;
+  
   /* 1. Setup page bitmap allocator. */
   
-  for (int i = 0; i < block_count; i++) {
+  for (i = 0; i < block_count; i++) {
     if (blocks[i].size >= PAGE_BITMAP_SIZE) {
       blocks[i].size -= PAGE_BITMAP_SIZE;
       
@@ -32,7 +35,7 @@ void start(const start_block_t *blocks, int block_count, const start_task_t *tas
     }
   }
   
-  for (int i = 0; i < block_count; i++) {
+  for (i = 0; i < block_count; i++) {
     size_t start = ((size_t)(blocks[i].start) + (PAGE_SIZE - 1)) / PAGE_SIZE;
     size_t end = ((size_t)(blocks[i].start) + blocks[i].size) / PAGE_SIZE;
     
@@ -45,7 +48,7 @@ void start(const start_block_t *blocks, int block_count, const start_task_t *tas
   
   /* 3. Run all initialization tasks. */
   
-  for (int i = 0; i < task_count; i++) {
+  for (i = 0; i < task_count; i++) {
     tasks[i].func();
   }
   

@@ -1,4 +1,5 @@
 #include <endian.h>
+#include <string.h>
 #include <bson.h>
 
 void *bson_find_entry(void *doc, const char *name) {

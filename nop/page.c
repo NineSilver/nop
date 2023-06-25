@@ -40,7 +40,9 @@ void *page_alloc(size_t n) {
   /* TODO: Speed up allocation by a free chunk table or
      something? */
   
-  for (size_t i = 0; i <= PAGE_BITMAP_SIZE - n; i++) {
+  size_t i;
+  
+  for (i = 0; i <= PAGE_BITMAP_SIZE - n; i++) {
     size_t free_pages = 0, free_start = i;
     
     while (free_pages < n && !(page_bitmap[i >> 3] & (1 << (i & 7)))) {

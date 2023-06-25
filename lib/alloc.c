@@ -1,5 +1,8 @@
+#include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include <alloc.h>
+#include <ssize.h>
 
 /* Use a block system, with each block containing a header-data
    structure repeated all across it, and with blocks being linked
@@ -16,6 +19,8 @@ struct header_t {
 
 struct block_t {
   block_t *next;
+  size_t size;
+  
   uint8_t data[];
 };
 
@@ -39,9 +44,11 @@ void alloc_tidy(void) {
 
 void alloc_block(size_t n) {
   n += sizeof(block_t) + sizeof(header_t);
-  block_t *block = page_alloc(n);
+  block_t *block = page_alloc(&n);
   
   block->next = block_root;
+  block->size = n - sizeof(block_t);
+  
   block_root = block;
   
   header_t *header = (header_t *)(block->data);

@@ -15,6 +15,6 @@ struct start_task_t {
   void (*func)(void);
 };
 
-void start(const start_block_t *blocks, int block_count, const start_task_t *tasks, int task_count);
+void start(start_block_t *blocks, int block_count, start_task_t *tasks, int task_count);
 
 #endif

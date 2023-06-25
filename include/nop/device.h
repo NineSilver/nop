@@ -1,7 +1,8 @@
 #ifndef __NOP_DEVICE_H__
 #define __NOP_DEVICE_H__
 
-#include <stdint.h>
+#include <stddef.h>
+#include <ssize.h>
 
 #define DEVICE_NAME_LENGTH 15
 #define DEVICE_ALLOC_STEP  8

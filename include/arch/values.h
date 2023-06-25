@@ -2,7 +2,7 @@
 #define __ARCH_VALUES_H__
 
 #ifdef __X86__
-#include <arch/x86/values.h>
+#include <arch/i386/values.h>
 #endif
 
 #endif

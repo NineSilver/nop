@@ -1,6 +1,8 @@
 #ifndef __NOP_FS_H__
 #define __NOP_FS_H__
 
+#include <nop/device.h>
+
 /* mbr, gpt, ext2, tcp, http, https, etc. */
 
 #define FS_NAME_LENGTH 15

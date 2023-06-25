@@ -1,7 +1,11 @@
 #ifndef __STRING_H__
 #define __STRING_H__
 
-#include <stdint.h>
+#include <stddef.h>
+
+// Measuring functions:
+
+size_t strlen(const char *str);
 
 // Copying functions:
 

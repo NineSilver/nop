@@ -12,7 +12,9 @@ int device_add(device_t device, int no_suffix) {
     device_total += DEVICE_ALLOC_STEP;
   }
   
-  for (int i = 0; i < device_total; i++) {
+  int i;
+  
+  for (i = 0; i < device_total; i++) {
     if (devices[i].free) {
       devices[i] = device;
       devices[i].free = 0;
@@ -31,7 +33,9 @@ int device_add(device_t device, int no_suffix) {
 }
 
 int device_find(const char *name) {
-  for (int i = 0; i < device_total; i++) {
+  int i;
+  
+  for (i = 0; i < device_total; i++) {
     if (!devices[i].free && !strcmp(devices[i].name, name)) {
       return i;
     }
