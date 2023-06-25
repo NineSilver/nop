@@ -1,3 +1,4 @@
+#include <digits.h>
 #include <endian.h>
 #include <string.h>
 #include <bson.h>
@@ -58,14 +59,14 @@ int bson_type(void *doc, const char *name) {
 
 void *bson_array_find(void *doc, int index) {
   char buffer[12];
-  /* TODO: Fill in? */
+  long_to_str(index, 10, buffer, 11);
   
   return bson_find(doc, buffer);
 }
 
 int bson_array_type(void *doc, int index) {
   char buffer[12];
-  /* TODO: Fill in? */
+  long_to_str(index, 10, buffer, 11);
   
   return bson_type(doc, buffer);
 }

@@ -20,7 +20,7 @@ int device_add(device_t device, int no_suffix) {
       devices[i].free = 0;
       
       if (!no_suffix) {
-        int length = strlen(devices[i].name);
+        /* int length = strlen(devices[i].name); */
         /* TODO: Determine next suffix and add it. */
       }
       
@@ -61,7 +61,7 @@ void device_commit(int id) {
   devices[id].commit(devices + id);
 }
 
-size_t device_write(int id, void *buffer, size_t size) {
+size_t device_write(int id, const void *buffer, size_t size) {
   return devices[id].write(devices + id, buffer, size);
 }
 

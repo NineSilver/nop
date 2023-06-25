@@ -37,7 +37,7 @@ struct device_t {
   
   int    (*feature)(device_t *device, int feature);
   void   (*commit)(device_t *device);
-  size_t (*write)(device_t *device, void *buffer, size_t size);
+  size_t (*write)(device_t *device, const void *buffer, size_t size);
   size_t (*read)(device_t *device, void *buffer, size_t size);
   void   (*seek)(device_t *device, ssize_t offset, int seek_mode);
   size_t (*tell)(device_t *device);
@@ -53,7 +53,7 @@ void device_free(int id);
 
 int    device_feature(int id, int feature);
 void   device_commit(int id);
-size_t device_write(int id, void *buffer, size_t size);
+size_t device_write(int id, const void *buffer, size_t size);
 size_t device_read(int id, void *buffer, size_t size);
 void   device_seek(int id, ssize_t offset, int seek_mode);
 size_t device_tell(int id);
