@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define DEVICE_NAME_LENGTH 15
+#define DEVICE_ALLOC_STEP  8
 
 /* 1 if present, 0 otherwise. */
 #define FEATURE_PRESENT 0
@@ -16,6 +17,9 @@
 
 /* Page alignment size, 1 means no alignment at all. */
 #define FEATURE_PAGE_SIZE 5
+
+/* 1 if it's not automatically commited and needs a commit() call. */
+#define FEATURE_COMMIT 6
 
 /* Unix-like seek modes. */
 #define SEEK_SET 0
@@ -30,8 +34,8 @@ struct device_t {
   void *data;
   int free;
   
-  int (*feature)(device_t *device, int feature);
-  
+  int    (*feature)(device_t *device, int feature);
+  void   (*commit)(device_t *device);
   size_t (*write)(device_t *device, void *buffer, size_t size);
   size_t (*read)(device_t *device, void *buffer, size_t size);
   void   (*seek)(device_t *device, ssize_t offset, int seek_mode);
@@ -42,8 +46,16 @@ struct device_t {
 extern device_t *devices;
 extern int device_used, device_total;
 
-device_t *device_add(device_t device, int no_suffix);
-device_t *device_find(const char *name);
-void      device_remove(device_t *device);
+int  device_add(device_t device, int no_suffix);
+int  device_find(const char *name);
+void device_free(int id);
+
+int    device_feature(int id, int feature);
+void   device_commit(int id);
+size_t device_write(int id, void *buffer, size_t size);
+size_t device_read(int id, void *buffer, size_t size);
+void   device_seek(int id, ssize_t offset, int seek_mode);
+size_t device_tell(int id);
+void   device_trim(int id);
 
 #endif

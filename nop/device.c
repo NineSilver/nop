@@ -6,9 +6,10 @@
 device_t *devices = NULL;
 int device_used = 0, device_total = 0;
 
-device_t *device_add(device_t device, int no_suffix) {
+int device_add(device_t device, int no_suffix) {
   if (device_used >= device_total) {
-    /* TODO: Try to increase size. */
+    devices = realloc(devices, (device_total + DEVICE_ALLOC_STEP) * sizeof(device_t));
+    device_total += DEVICE_ALLOC_STEP;
   }
   
   for (int i = 0; i < device_total; i++) {
@@ -22,28 +23,56 @@ device_t *device_add(device_t device, int no_suffix) {
       }
       
       device_used++;
-      return devices + i;
+      return i;
     }
   }
   
-  return NULL;
+  return -1;
 }
 
-device_t *device_find(const char *name) {
+int device_find(const char *name) {
   for (int i = 0; i < device_total; i++) {
     if (!devices[i].free && !strcmp(devices[i].name, name)) {
-      return devices + i;
+      return i;
     }
   }
   
-  return NULL;
+  return -1;
 }
 
-void device_remove(device_t *device) {
-  if (!device || device->free) {
+void device_free(int id) {
+  if (id < 0 || devices[id].free) {
     return;
   }
   
-  device->free = 1;
+  devices[id].free = 1;
   device_used--;
+}
+
+int device_feature(int id, int feature) {
+  return devices[id].feature(devices + id, feature);
+}
+
+void device_commit(int id) {
+  devices[id].commit(devices + id);
+}
+
+size_t device_write(int id, void *buffer, size_t size) {
+  return devices[id].write(devices + id, buffer, size);
+}
+
+size_t device_read(int id, void *buffer, size_t size) {
+  return devices[id].read(devices + id, buffer, size);
+}
+
+void device_seek(int id, ssize_t offset, int seek_mode) {
+  return devices[id].seek(devices + id, offset, seek_mode);
+}
+
+size_t device_tell(int id) {
+  return devices[id].tell(devices + id);
+}
+
+void device_trim(int id) {
+  devices[id].trim(devices + id);
 }
