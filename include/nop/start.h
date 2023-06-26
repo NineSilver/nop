@@ -1,6 +1,7 @@
 #ifndef __NOP_START_H__
 #define __NOP_START_H__
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct start_block_t start_block_t;

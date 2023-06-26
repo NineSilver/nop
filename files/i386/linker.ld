@@ -3,8 +3,10 @@ ENTRY(i386_start)
 SECTIONS {
   . = 1M;
   
+  i386_load_start = .;
+  
   .text BLOCK(4K) : ALIGN(4K) {
-    *(.multiboot)
+    *(.header)
     *(.text)
   }
   
@@ -16,8 +18,12 @@ SECTIONS {
     *(.data)
   }
   
+  i386_load_end = .;
+  
   .bss BLOCK(4K) : ALIGN(4K) {
     *(COMMON)
     *(.bss)
   }
+  
+  i386_bss_end = .;
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/sh
 
+read -p "[nop] By pressing Enter, you will be deleting all previous cross-compilers installed. Do you want to proceed?"
+
 rm -rf tools
 mkdir -p tools
 
@@ -41,6 +43,6 @@ cd tools
   cd ../..
 cd ..
 
-cd include/arch/x86
+cd include/nop/arch/i386
   wget http://git.savannah.gnu.org/cgit/grub.git/plain/doc/multiboot2.h?h=multiboot2 -O multiboot2.h
 cd ../../..
