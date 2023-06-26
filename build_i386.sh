@@ -21,6 +21,8 @@ find ./lib -name "*.asm" -exec nasm ${ASMFLAGS}{} -o {}.o \;
 i386-coff-gcc -T files/i386/linker.ld -o build/nop_i386.exe -ffreestanding -O2 -nostdlib -lgcc \
   $(find ./nop -name "*.o") $(find ./lib -name "*.o")
 
+exit 0
+
 dd if=/dev/zero of=build/test_image.img count=266248 conv=fsync status=progress
 
 export LOOP=$(sudo losetup -f)
