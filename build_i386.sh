@@ -43,8 +43,10 @@ sudo mkdir -p mnt/boot/grub
 sudo cp build/nop_i386.exe mnt/boot/nop_i386.exe
 sudo cp files/i386/grub.cfg mnt/boot/grub/grub.cfg
 
+sudo grub-install --target=i386-pc --locales=es --modules="part_msdos nilfs2" \
+  --install-modules="part_apple part_msdos part_gpt nilfs2 multiboot2" --boot-directory=mnt/boot ${LOOP}
+
 sudo umount mnt
-sudo grub-install --target=i386-pc --modules="part_gpt part_msdos nilfs2 multiboot2 normal" --root-directory=mnt ${LOOP}
 
 sudo losetup -D ${LOOP}
 sudo rm -rf mnt

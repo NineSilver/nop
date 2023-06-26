@@ -1,4 +1,4 @@
-#include <arch/values.h>
+#include <nop/arch/values.h>
 #include <nop/device.h>
 #include <nop/start.h>
 #include <nop/page.h>
@@ -61,6 +61,7 @@ void start(start_block_t *blocks, int block_count, start_task_t *tasks, int task
   "$eth0/"
   "$cdrom0/autorun.inf"
   "$mouse0"
+  "$logs"
   */
   
   /* 5. Try to establish a console to log information to. */

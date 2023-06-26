@@ -1,7 +1,7 @@
 #ifndef __NOP_PAGE_H__
 #define __NOP_PAGE_H__
 
-#include <arch/values.h>
+#include <nop/arch/values.h>
 #include <stddef.h>
 #include <stdint.h>
 

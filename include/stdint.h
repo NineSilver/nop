@@ -1,7 +1,7 @@
 #ifndef __STDINT_H__
 #define __STDINT_H__
 
-#include <arch/types.h>
+#include <nop/arch/types.h>
 
 typedef __uint8_t uint8_t;
 typedef __int8_t  int8_t;
