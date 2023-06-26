@@ -1,18 +1,45 @@
 #include <digits.h>
 #include <stddef.h>
+#include <ctype.h>
+
+static const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 void ulong_to_str(unsigned long value, int base, char *str, size_t n) {
-  /* TODO */
-  value; base; str; n;
+  if (n && !value) {
+    *str = '0';
+    n--;
+  }
+  
+  char buffer[40];
+  int length = 0;
+  
+  while (n && value) {
+    buffer[length++] = digits[value % base];
+    value /= base;
+    
+    n--;
+  }
+  
+  while (length--) {
+    *(str++) = buffer[length];
+  }
+  
+  if (n) {
+    *str = '\0';
+  }
 }
 
 unsigned long str_to_ulong(int base, const char *str, size_t n) {
   unsigned long value = 0;
   
   while (n-- && *str) {
-    /* TODO: Add support for hexadecimal, detect the end of the number. */
+    char *ptr = strchr(digits, toupper(*str));
     
-    value = value * base + (*str - '0');
+    if (!ptr) {
+      break;
+    }
+    
+    value = value * base + (ptr - digits);
     str++;
   }
   

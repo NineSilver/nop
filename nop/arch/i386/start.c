@@ -97,7 +97,7 @@ void i386_start_c(void *tags) {
     i &= ~(MULTIBOOT_TAG_ALIGN - 1);
   }
   
-  const start_task_t tasks[] = {
+  start_task_t tasks[] = {
     (start_task_t){
       .func = textmode_task,
     },
