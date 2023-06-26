@@ -65,18 +65,15 @@ global i386_start
 
 i386_start:
   cmp eax, 0x36D76289
-  jne .not_multiboot2
+  jne .end
   
   mov esp, stack_bss.end
   
-  push dword [ebx]
-  add ebx, 8
   push ebx
+  call i386_start_c
   
-  jmp i386_start_c
-
-.not_multiboot2:
+.end:
   hlt
-  jmp .not_multiboot2
+  jmp .end
 
 %endif

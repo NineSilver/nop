@@ -1,5 +1,5 @@
-#ifndef __ARCH_I386_VALUES_H__
-#define __ARCH_I386_VALUES_H__
+#ifndef __NOP_ARCH_I386_VALUES_H__
+#define __NOP_ARCH_I386_VALUES_H__
 
 /* Mainly for nop/page.h: */
 

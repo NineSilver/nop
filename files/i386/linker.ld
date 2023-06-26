@@ -19,6 +19,7 @@ SECTIONS {
   }
   
   i386_load_end = .;
+  i386_bss_start = .;
   
   .bss BLOCK(4K) : ALIGN(4K) {
     *(COMMON)

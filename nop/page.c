@@ -1,10 +1,13 @@
 #include <nop/arch/values.h>
 #include <nop/page.h>
+#include <nop/log.h>
 #include <stdint.h>
 
 uint8_t *page_bitmap;
 
 void page_init(void *bitmap) {
+  log(LOG_DEBUG, "[page] Page bitmap at 0x%08X.\n", bitmap);
+  
   page_bitmap = bitmap;
   page_mark(0, PAGE_COUNT, PAGE_USED);
 }
@@ -42,7 +45,7 @@ void *page_alloc(size_t n) {
   
   size_t i;
   
-  for (i = 0; i <= PAGE_BITMAP_SIZE - n; i++) {
+  for (i = 0; i <= PAGE_COUNT - n; i++) {
     size_t free_pages = 0, free_start = i;
     
     while (free_pages < n && !(page_bitmap[i >> 3] & (1 << (i & 7)))) {
@@ -55,6 +58,7 @@ void *page_alloc(size_t n) {
     }
   }
   
+  log(LOG_CRITICAL, "[page] Could not allocate %u pages: Not enough contiguous free space.\n", n);
   return NULL;
 }
 

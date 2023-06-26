@@ -1,5 +1,5 @@
-#ifndef __ARCH_I386_TYPES_H__
-#define __ARCH_I386_TYPES_H__
+#ifndef __NOP_ARCH_I386_TYPES_H__
+#define __NOP_ARCH_I386_TYPES_H__
 
 typedef unsigned char __uint8_t;
 typedef signed char   __int8_t;

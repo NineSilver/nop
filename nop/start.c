@@ -2,6 +2,7 @@
 #include <nop/device.h>
 #include <nop/start.h>
 #include <nop/page.h>
+#include <nop/log.h>
 #include <nop/fs.h>
 #include <string.h>
 #include <alloc.h>
@@ -21,7 +22,7 @@ static void alloc_page_free(void *ptr, size_t n) {
    boot, instead, it's what's called right after all the
    architecture-specific blobs. */
 
-void start(start_block_t *blocks, int block_count, start_task_t *tasks, int task_count) {
+void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_t task_count) {
   int i;
   
   /* 1. Setup page bitmap allocator. */
@@ -46,13 +47,17 @@ void start(start_block_t *blocks, int block_count, start_task_t *tasks, int task
   
   alloc_init(alloc_page_alloc, alloc_page_free, 262144);
   
-  /* 3. Run all initialization tasks. */
+  /* 3. Create "logs" device, exiting early log mode. */
+  
+  log_init("logs");
+  
+  /* 4. Run all initialization tasks. */
   
   for (i = 0; i < task_count; i++) {
     tasks[i].func();
   }
   
-  /* 4. Setup filesystem handling (VFS). */
+  /* 5. Setup filesystem handling (VFS). */
   
   fs_init();
   
@@ -64,26 +69,25 @@ void start(start_block_t *blocks, int block_count, start_task_t *tasks, int task
   "$logs"
   */
   
-  /* 5. Try to establish a console to log information to. */
+  log(LOG_INFO, "Hello, world!\n");
   
   /*
-  log_init();
-  log(LOG_INFO, "Hello, world!\n");
-  */
-  
   const char *text = "Hello, world!\n";
   
   int console_id = device_find("serial0");
   device_write(console_id, text, strlen(text));
+  */
   
   /* 6. Boot? */
   
+  /*
   int file_id = fs_open("$hdd0/0/test.txt");
   
   device_write(file_id, text, strlen(text));
   device_commit(file_id);
   
   fs_close(file_id);
+  */
   
   /* It's not like we can do much more here either... */
   for (;;);
