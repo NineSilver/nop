@@ -13,8 +13,8 @@ typedef struct fs_t fs_t;
 struct fs_type_t {
   char name[FS_NAME_LENGTH + 1];
   
-  int  (*init)(fs_t *fs, device_t *device);
-  void (*free)(fs_t *fs);
+  fs_t *(*init)(device_t *device);
+  void  (*free)(fs_t *fs);
 };
 
 struct fs_t {

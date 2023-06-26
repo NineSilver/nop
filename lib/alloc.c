@@ -64,23 +64,29 @@ void *malloc_once(size_t n) {
     while (data - block->data < block->size) {
       header_t *header = (header_t *)(data);
       
-      if (header->size >= n) {
+      if (header->size >= (ssize_t)(n)) {
         if (header->size <= n + sizeof(header_t)) {
           /* Just allocate it entirely! */
           header->size = -header->size;
         } else {
           /* Nah, it's time to split it up... */
           
-          header_t *next_header = (header_t *)(data + sizeof(header_t) + n);
+          header_t *next_header = (void *)(data + sizeof(header_t) + n);
           next_header->size = header->size - sizeof(header_t) - n;
           
-          header->size = -n;
+          header->size = -((ssize_t)(n));
         }
         
         return data + sizeof(header_t);
       }
       
-      data += sizeof(header_t) + header->size;
+      ssize_t abs_size = header->size;
+      
+      if (abs_size < 0) {
+        abs_size = -abs_size;
+      }
+      
+      data += sizeof(header_t) + abs_size;
     }
     
     block = block->next;

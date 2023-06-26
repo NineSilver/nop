@@ -1,4 +1,5 @@
 #include <nop/arch/i386/textmode.h>
+#include <nop/device.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -54,4 +55,53 @@ void textmode_write(const char *str, size_t n) {
   }
 }
 
-void textmode_task(void);
+static int textmode_device_feature(device_t *device, int feature) {
+  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE) {
+    return 1;
+  }
+  
+  return 0;
+}
+
+static void textmode_device_commit(device_t *device) {
+  return; /* Why bother commiting to a textmode terminal? */
+}
+
+static size_t textmode_device_write(device_t *device, const void *ptr, size_t n) {
+  textmode_write(ptr, n);
+}
+
+static size_t textmode_device_read(device_t *device, void *ptr, size_t n) {
+  return 0; /* Nah-ah, just check the friggin' features, dammit! */
+}
+
+static void textmode_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+  return; /* See read(). */
+}
+
+static size_t textmode_device_tell(device_t *device) {
+  return 0; /* See read(). */
+}
+
+static void textmode_device_trim(device_t *device) {
+  return; /* See read(). */
+}
+
+void textmode_task(void) {
+  device_t device = (device_t){
+    .name = "term",
+    
+    .data = NULL,
+    .free = 0,
+    
+    .feature = textmode_device_feature,
+    .commit = textmode_device_commit,
+    .write = textmode_device_write,
+    .read = textmode_device_read,
+    .seek = textmode_device_seek,
+    .tell = textmode_device_tell,
+    .trim = textmode_device_trim,
+  };
+  
+  device_add(device, 0);
+}

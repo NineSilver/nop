@@ -16,7 +16,15 @@ const int fs_type_count = sizeof(fs_types) / sizeof(fs_type_t);
 fs_t fs_root;
 
 void fs_init(void) {
-  /* TODO */
+  size_t i;
+  
+  for (i = 0; i < device_total; i++) {
+    if (devices[i].free) {
+      continue;
+    }
+    
+    /* TODO */
+  }
 }
 
 int fs_open(const char *path) {

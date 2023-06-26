@@ -49,7 +49,7 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   
   /* 3. Create "logs" device, exiting early log mode. */
   
-  log_init("logs");
+  // log_init("logs");
   
   /* 4. Run all initialization tasks. */
   
@@ -68,6 +68,12 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   "$mouse0"
   "$logs"
   */
+  
+  for (i = 0; i < device_total; i++) {
+    if (!devices[i].free) {
+      log(LOG_INFO, "$%s\n", devices[i].name);
+    }
+  }
   
   log(LOG_INFO, "Hello, world!\n");
   

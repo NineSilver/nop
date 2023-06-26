@@ -4,7 +4,7 @@
 #include <alloc.h>
 
 device_t *devices = NULL;
-int device_used = 0, device_total = 0;
+size_t device_used = 0, device_total = 0;
 
 int device_add(device_t device, int no_suffix) {
   if (device_used >= device_total) {
@@ -12,7 +12,7 @@ int device_add(device_t device, int no_suffix) {
     device_total += DEVICE_ALLOC_STEP;
   }
   
-  int i;
+  size_t i;
   
   for (i = 0; i < device_total; i++) {
     if (devices[i].free) {
@@ -33,7 +33,7 @@ int device_add(device_t device, int no_suffix) {
 }
 
 int device_find(const char *name) {
-  int i;
+  size_t i;
   
   for (i = 0; i < device_total; i++) {
     if (!devices[i].free && !strcmp(devices[i].name, name)) {
@@ -61,12 +61,12 @@ void device_commit(int id) {
   devices[id].commit(devices + id);
 }
 
-size_t device_write(int id, const void *buffer, size_t size) {
-  return devices[id].write(devices + id, buffer, size);
+size_t device_write(int id, const void *ptr, size_t n) {
+  return devices[id].write(devices + id, ptr, n);
 }
 
-size_t device_read(int id, void *buffer, size_t size) {
-  return devices[id].read(devices + id, buffer, size);
+size_t device_read(int id, void *ptr, size_t n) {
+  return devices[id].read(devices + id, ptr, n);
 }
 
 void device_seek(int id, ssize_t offset, int seek_mode) {

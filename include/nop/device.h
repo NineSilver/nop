@@ -13,7 +13,7 @@
 /* 1 if writable, readable, seekable or trimmable device, 0 otherwise. */
 #define FEATURE_WRITE 1
 #define FEATURE_READ  2
-#define FEATURE_BLOCK 3
+#define FEATURE_SEEK  3
 #define FEATURE_TRIM  4
 
 /* Page alignment size, 1 means no alignment at all. */
@@ -37,15 +37,15 @@ struct device_t {
   
   int    (*feature)(device_t *device, int feature);
   void   (*commit)(device_t *device);
-  size_t (*write)(device_t *device, const void *buffer, size_t size);
-  size_t (*read)(device_t *device, void *buffer, size_t size);
+  size_t (*write)(device_t *device, const void *ptr, size_t n);
+  size_t (*read)(device_t *device, void *ptr, size_t n);
   void   (*seek)(device_t *device, ssize_t offset, int seek_mode);
   size_t (*tell)(device_t *device);
   void   (*trim)(device_t *device);
 };
 
 extern device_t *devices;
-extern int device_used, device_total;
+extern size_t device_used, device_total;
 
 int  device_add(device_t device, int no_suffix);
 int  device_find(const char *name);
@@ -53,8 +53,8 @@ void device_free(int id);
 
 int    device_feature(int id, int feature);
 void   device_commit(int id);
-size_t device_write(int id, const void *buffer, size_t size);
-size_t device_read(int id, void *buffer, size_t size);
+size_t device_write(int id, const void *ptr, size_t n);
+size_t device_read(int id, void *ptr, size_t n);
 void   device_seek(int id, ssize_t offset, int seek_mode);
 size_t device_tell(int id);
 void   device_trim(int id);
