@@ -1,7 +1,10 @@
 #include <nop/device.h>
+#include <nop/log.h>
+#include <digits.h>
 #include <stdint.h>
 #include <string.h>
 #include <alloc.h>
+#include <ctype.h>
 
 device_t *devices = NULL;
 size_t device_used = 0, device_total = 0;
@@ -20,9 +23,26 @@ int device_add(device_t device, int no_suffix) {
       devices[i].free = 0;
       
       if (!no_suffix) {
-        /* int length = strlen(devices[i].name); */
-        /* TODO: Determine next suffix and add it. */
+        int length = strlen(devices[i].name);
+        
+        unsigned long suffix_value = 0;
+        size_t j;
+        
+        for (j = 0; j < device_total; j++) {
+          if (i == j) {
+            continue;
+          }
+          
+          if (!memcmp(devices[i].name, devices[j].name, length) && isdigit(devices[j].name[length])) {
+            unsigned long value = str_to_ulong(10, devices[j].name + length, DEVICE_NAME_LENGTH - length);
+            suffix_value = value + 1;
+          }
+        }
+        
+        ulong_to_str(suffix_value, 10, devices[i].name + length, DEVICE_NAME_LENGTH - length);
       }
+      
+      log(LOG_INFO, "[device] Added device '%s'.\n", devices[i].name);
       
       device_used++;
       return i;

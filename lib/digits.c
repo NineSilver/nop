@@ -1,12 +1,13 @@
 #include <digits.h>
 #include <stddef.h>
+#include <string.h>
 #include <ctype.h>
 
 static const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 void ulong_to_str(unsigned long value, int base, char *str, size_t n) {
   if (n && !value) {
-    *str = '0';
+    *(str++) = '0';
     n--;
   }
   
@@ -33,7 +34,7 @@ unsigned long str_to_ulong(int base, const char *str, size_t n) {
   unsigned long value = 0;
   
   while (n-- && *str) {
-    char *ptr = strchr(digits, toupper(*str));
+    const char *ptr = strchr(digits, toupper(*str));
     
     if (!ptr) {
       break;

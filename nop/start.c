@@ -69,20 +69,10 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   "$logs"
   */
   
-  for (i = 0; i < device_total; i++) {
-    if (!devices[i].free) {
-      log(LOG_INFO, "$%s\n", devices[i].name);
-    }
-  }
-  
-  log(LOG_INFO, "Hello, world!\n");
-  
-  /*
   const char *text = "Hello, world!\n";
   
-  int console_id = device_find("serial0");
+  int console_id = device_find("term0");
   device_write(console_id, text, strlen(text));
-  */
   
   /* 6. Boot? */
   
