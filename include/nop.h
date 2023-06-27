@@ -3,10 +3,12 @@
 
 /* Things actually exposed to both userspace and the kernel. */
 
-typedef struct nop_list_t nop_list_t;
+#define NAME_LENGTH 255
 
-struct nop_list_t {
-  char name[256];
-};
+typedef struct list_t list_t;
+
+struct list_t {
+  char name[NAME_LENGTH + 1];
+} __attribute__((packed));
 
 #endif

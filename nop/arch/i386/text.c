@@ -90,8 +90,9 @@ static void text_device_trim(device_t *device) {
 }
 
 void text_task(void) {
-  device_t device = (device_t){
+  device_add((device_t){
     .name = "term",
+    .is_public = 1,
     
     .data = NULL,
     .free = 0,
@@ -103,9 +104,7 @@ void text_task(void) {
     .seek = text_device_seek,
     .tell = text_device_tell,
     .trim = text_device_trim,
-  };
-  
-  device_add(device, 0);
+  }, 0);
 }
 
 #endif

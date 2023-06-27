@@ -1,10 +1,12 @@
 #include <nop/tree/root.h>
+#include <nop/tree/pci.h>
 #include <nop/tree.h>
 #include <string.h>
 #include <alloc.h>
 
 const tree_type_t tree_types[] = {
   (tree_type_t){root_init},
+  (tree_type_t){pci_init},
 };
 
 const int tree_type_count = sizeof(tree_types) / sizeof(tree_type_t);

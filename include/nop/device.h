@@ -31,6 +31,7 @@ typedef struct device_t device_t;
 
 struct device_t {
   char name[DEVICE_NAME_LENGTH + 1];
+  int is_public;
   
   void *data;
   int free;

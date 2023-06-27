@@ -34,7 +34,7 @@ static int root_close(tree_t *tree, int id) {
 
 int root_init(tree_t *tree, int id) {
   if (id >= 0) {
-    log(LOG_DEBUG, "[root] Tree 0x%08X cannot be of type root, as it has a device attached (%d). Aborting.\n", tree, id);
+    log(LOG_DEBUG, "[root] Cannot create a 'root' tree at 0x%08X, as it has a device attached (%d).\n", tree, id);
     return 0;
   }
   
@@ -45,6 +45,6 @@ int root_init(tree_t *tree, int id) {
   tree->delete = root_delete;
   tree->close = root_close;
   
-  log(LOG_INFO, "[root] Created root tree at 0x%08X.\n", tree);
+  log(LOG_INFO, "[root] Created 'root' tree at 0x%08X.\n", tree);
   return 1;
 }

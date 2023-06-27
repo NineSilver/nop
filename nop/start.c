@@ -68,7 +68,7 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   "$cdrom0/autorun.inf"
   "$mouse0"
   "$logs"
-  "$pci0/0000"
+  "$pci0/vvvv_dddd_iiii"
   */
   
   int disk_id = tree_open(&root, "$pci0");

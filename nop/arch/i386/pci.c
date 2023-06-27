@@ -22,7 +22,7 @@ uint8_t pci_byte(uint16_t addr, uint8_t offset) {
 }
 
 static int pci_device_feature(device_t *device, int feature) {
-  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || feature == FEATURE_READ) {
+  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || feature == FEATURE_READ || feature == FEATURE_SEEK) {
     return 1;
   }
   
@@ -105,8 +105,9 @@ static void pci_device_trim(device_t *device) {
 }
 
 void pci_task(void) {
-  device_t device = (device_t){
+  device_add((device_t){
     .name = "pci",
+    .is_public = 1,
     
     .data = (void *)(0),
     .free = 0,
@@ -118,9 +119,7 @@ void pci_task(void) {
     .seek = pci_device_seek,
     .tell = pci_device_tell,
     .trim = pci_device_trim,
-  };
-  
-  device_add(device, 0);
+  }, 0);
 }
 
 #endif
