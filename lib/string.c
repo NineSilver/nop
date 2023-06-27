@@ -65,7 +65,24 @@ int strcmp(const char *s1, const char *s2) {
   return memcmp(s1, s2, strlen(s1));
 }
 
-int strncmp(const char *s1, const char *s2, size_t n);
+int strncmp(const char *s1, const char *s2, size_t n) {
+  const int8_t *s1_bytes = s1;
+  const int8_t *s2_bytes = s2;
+  
+  while (n--) {
+    if (*s1_bytes != *s2_bytes) {
+      return *s1_bytes - *s2_bytes;
+    }
+    
+    if (!(*s1_bytes)) {
+      break;
+    }
+    
+    s1_bytes++, s2_bytes++;
+  }
+  
+  return 0;
+}
 
 const char *strchr(const char *str, char c) {
   while (*str) {
@@ -77,4 +94,14 @@ const char *strchr(const char *str, char c) {
   }
   
   return NULL;
+}
+
+const char *strchrnul(const char *str, char c) {
+  const char *ptr = strchr(str, c);
+  
+  if (ptr) {
+    return ptr;
+  }
+  
+  return str + strlen(str);
 }

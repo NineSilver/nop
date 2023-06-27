@@ -2,8 +2,8 @@
 #include <nop/device.h>
 #include <nop/start.h>
 #include <nop/page.h>
+#include <nop/tree.h>
 #include <nop/log.h>
-#include <nop/fs.h>
 #include <string.h>
 #include <alloc.h>
 
@@ -49,41 +49,49 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   
   /* 3. Create "logs" device, exiting early log mode. */
   
-  // log_init("logs");
+  log_init("logs");
   
-  /* 4. Run all initialization tasks. */
+  /* 4. Setup filesystem handling (VFS). */
+  
+  tree_init(&root, -1);
+  
+  /* 5. Run all initialization tasks. */
   
   for (i = 0; i < task_count; i++) {
-    tasks[i].func();
+    tasks[i].handle();
   }
   
-  /* 5. Setup filesystem handling (VFS). */
-  
-  fs_init();
-  
   /*
-  "$hdd0/0/boot/grub.cfg"
-  "$eth0/"
+  "$disk0/0/boot/grub.cfg"
+  "$net0/"
+  "$term0"
   "$cdrom0/autorun.inf"
   "$mouse0"
   "$logs"
+  "$pci0/0000"
   */
+  
+  int disk_id = tree_open(&root, "$pci0");
+  
+  if (disk_id >= 0) {
+    size_t count = 256; // device_feature(disk_id, FEATURE_PAGE_SIZE);
+    
+    uint8_t buffer[count];
+    device_read(disk_id, buffer, count);
+    
+    for (i = 0; i < count; i++) {
+      log(LOG_INFO, "%02X", buffer[i]);
+      
+      if (i % 16 == 15) {
+        log(LOG_INFO, "\n");
+      }
+    }
+  }
   
   const char *text = "Hello, world!\n";
   
-  int console_id = device_find("term0");
+  int console_id = tree_open(&root, "$term0");
   device_write(console_id, text, strlen(text));
-  
-  /* 6. Boot? */
-  
-  /*
-  int file_id = fs_open("$hdd0/0/test.txt");
-  
-  device_write(file_id, text, strlen(text));
-  device_commit(file_id);
-  
-  fs_close(file_id);
-  */
   
   /* It's not like we can do much more here either... */
   for (;;);

@@ -13,7 +13,12 @@ struct start_block_t {
 };
 
 struct start_task_t {
-  void (*func)(void);
+  void (*handle)(void);
+  
+  const char **needs;
+  int need_count;
+  
+  int done;
 };
 
 void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_t task_count);

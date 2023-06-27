@@ -27,5 +27,6 @@ int strncmp(const char *s1, const char *s2, size_t n);
 // Finding functions:
 
 const char *strchr(const char *str, char c);
+const char *strchrnul(const char *str, char c);
 
 #endif

@@ -56,7 +56,7 @@ int device_find(const char *name) {
   size_t i;
   
   for (i = 0; i < device_total; i++) {
-    if (!devices[i].free && !strcmp(devices[i].name, name)) {
+    if (!devices[i].free && !strncmp(devices[i].name, name, DEVICE_NAME_LENGTH)) {
       return i;
     }
   }

@@ -1,5 +1,8 @@
+#ifdef __I386__
+
 #include <nop/arch/i386/multiboot2.h>
-#include <nop/arch/i386/textmode.h>
+#include <nop/arch/i386/text.h>
+#include <nop/arch/i386/pci.h>
 #include <nop/start.h>
 #include <nop/log.h>
 #include <alloca.h>
@@ -19,8 +22,8 @@ void i386_start_c(void *tags) {
   
   /* Start 0x000B8000 text mode, and use if for early logging (TODO: Detect!). */
   
-  textmode_init((void *)(0x000B8000), 80, 25, 0x0F00);
-  log_early(textmode_write);
+  text_init((void *)(0x000B8000), 80, 25, 0x0F00);
+  log_early(text_write);
   
   log(LOG_DEBUG, "[i386] .text/.data => (0x%08X - 0x%08X)\n", &i386_load_start, &i386_load_end);
   log(LOG_DEBUG, "[i386] .bss => (0x%08X - 0x%08X)\n", &i386_bss_start, &i386_bss_end);
@@ -99,9 +102,25 @@ void i386_start_c(void *tags) {
   
   start_task_t tasks[] = {
     (start_task_t){
-      .func = textmode_task,
+      .handle = text_task,
+      
+      .needs = NULL,
+      .need_count = 0,
+      
+      .done = 0,
+    },
+    
+    (start_task_t){
+      .handle = pci_task,
+      
+      .needs = NULL,
+      .need_count = 0,
+      
+      .done = 0,
     },
   };
   
   start(blocks, block_count, tasks, sizeof(tasks) / sizeof(start_task_t));
 }
+
+#endif
