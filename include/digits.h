@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 void          ulong_to_str(unsigned long value, int base, char *str, size_t n);
+void          ulong_to_str_align(unsigned long value, int base, char *str, size_t n);
 unsigned long str_to_ulong(int base, const char *str, size_t n);
 
 void long_to_str(long value, int base, char *str, size_t n);

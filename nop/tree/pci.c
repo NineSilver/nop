@@ -27,7 +27,13 @@ static int pci_list(tree_t *tree, const char *path) {
   size_t i;
   
   for (i = 0; i < pci->device_count; i++) {
-    ulong_to_str(pci->devices[i], 16, entry.name, NAME_LENGTH);
+    ulong_to_str_align(pci->devices[i].vendor_id, 16, entry.name, 4);
+    ulong_to_str_align(pci->devices[i].device_id, 16, entry.name + 5, 4);
+    ulong_to_str_align(pci->devices[i].addr, 16, entry.name + 10, 4);
+    
+    entry.name[4] = '_';
+    entry.name[9] = '_';
+    
     device_write(list, &entry, sizeof(list_t));
   }
   
@@ -44,6 +50,8 @@ static int pci_close(tree_t *tree, int id) {
 }
 
 static void pci_push(pci_t *pci, uint16_t vendor_id, uint16_t device_id, uint16_t addr) {
+  pci->devices = realloc(pci->devices, (pci->device_count + 1) * )
+  
   pci->device_count++; /* TODO */
 }
 
