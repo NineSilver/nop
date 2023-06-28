@@ -7,3 +7,5 @@ iso
 nop.iso
 
 **/*.o
+
+compile_flags.txt

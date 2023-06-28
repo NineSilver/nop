@@ -12,6 +12,8 @@ int text_width, text_height;
 int text_x, text_y;
 uint16_t text_color;
 
+int print_serial = 1;
+
 void text_init(void *ptr, int width, int height, uint16_t color) {
   text_ptr = ptr;
   
@@ -40,6 +42,10 @@ void text_putchar(char chr) {
   }
   
   text_ptr[text_x++ + text_y * text_width] = (uint16_t)(chr) | text_color;
+  
+  if (print_serial) {
+    write_serial(chr);
+  }
 }
 
 void text_scroll(void) {
@@ -58,7 +64,7 @@ void text_write(const char *str, size_t n) {
 }
 
 static int text_device_feature(device_t *device, int feature) {
-  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || FEATURE_PAGE_SIZE) {
+  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || feature == FEATURE_PAGE_SIZE) {
     return 1;
   }
   
@@ -71,6 +77,7 @@ static void text_device_commit(device_t *device) {
 
 static size_t text_device_write(device_t *device, const void *ptr, size_t n) {
   text_write(ptr, n);
+  return 0;
 }
 
 static size_t text_device_read(device_t *device, void *ptr, size_t n) {
@@ -90,6 +97,10 @@ static void text_device_trim(device_t *device) {
 }
 
 void text_task(void) {
+  if (init_serial()) {
+    print_serial = 0;
+  }
+
   device_add((device_t){
     .name = "term",
     .is_public = 1,
