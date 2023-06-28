@@ -1,24 +1,70 @@
-- ext2 OR btrfs filesystem (no boot partition)
-- Arquitecture-independent (supports x86, x86_64 and more?)
+# nopOS: A portable monolithic OS, from the ground up.
 
-NOTE: nop expects vasm, vlink and vbcc to be installed (http://www.compilers.de/).
+nopOS is meant to be a long-term hobby project, whose main goal is to
+provide a fully usable and self-hosting enviroment on many different
+architectures and devices, ranging from (hopefully) simple 8-bit
+microcontrollers to fast and modern x86_64 CPUs, to really obscure
+server-specific ISAs.
 
-## IPC:
+nopOS is divided into its main three parts, named after their matching
+folders:
 
-Why not just use an object format like BSON? (https://bsonspec.org/)
+- nop: nopOS's kernel, written in GNU89-compliant C code.
+- lib: An alternative (yet largely overlapping) standard library for both nop and nopOS's userspace.
+- host: A complete suite of programs, ports and configuration files for nopOS's userspace.
 
-## Filesystems:
+# nop, nopOS's kernel:
 
-We should look for alternative filesystems, otherwise, just use btrfs and 5 years of my
-life to implement it properly. My main concern is how slow btrfs could be on simpler
-hardware. Maybe LEAN? (https://wiki.osdev.org/LEAN)
+TODO
 
-## nCOFF and nCOFF64:
+## Progress:
 
-nCOFF is just plain COFF but with many more supported architectures, even 16-bit (though
-just padded in 32-bit values). Additionally, several signed values are turned unsigned,
-like time stamps, file offsets and sizes.
+- nop
+  - [x] Device system (nop/device).
+  - [x] Tree system (nop/tree).
+    - [ ] root
+    - [ ] pci
+    - [ ] net
+    - [ ] mbr
+    - [ ] gpt
+    - [ ] nilfs2
+    - [ ] fat12
+    - [ ] fat16
+    - [ ] fat32
+  - [ ] Event system (nop/event).
+- i386
+  - [x] Entry point.
+  - PCI (nop/arch/i386/pci).
+    - [ ] Detect PCI presence instead of assuming it's there.
+    - [ ] Write support.
+    - [x] Read support.
+  - [x] VGA text mode (nop/arch/i386/text).
+  - [x] Serial ports (nop/arch/i386/serial).
+- x86_64
+  - [ ] Entry point.
+- armv7/v8
+  - [ ] Entry point.
+- aarch64
+  - [ ] Entry point.
+- rv32* (RISC-V)
+  - [ ] Entry point.
+- rv64* (RISC-V)
+  - [ ] Entry point.
+- SH4A
+  - [ ] Entry point.
 
-nCOFF64 extends several structures:
-- Section headers (from 40 to 64 bytes).
-- 
+# lib:
+
+TODO
+
+## Progress:
+
+TODO
+
+# host:
+
+TODO
+
+## Progress:
+
+TODO
