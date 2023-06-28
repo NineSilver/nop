@@ -1,3 +1,5 @@
+#ifdef __I386__
+
 #include <nop/arch/i386/serial.h>
 #include <nop/arch/i386/asm.h>
 #include <nop/device.h>
@@ -115,3 +117,5 @@ void serial_task(void) {
   
   return 0;
 }
+
+#endif
