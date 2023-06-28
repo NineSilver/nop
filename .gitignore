@@ -1,6 +1,7 @@
 include/nop/arch/x86/multiboot2.h
+compile_flags.txt
+**/*.o
 build
 tools
 mnt
-
-**/*.o
+iso

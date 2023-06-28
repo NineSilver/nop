@@ -50,8 +50,7 @@ static int pci_close(tree_t *tree, int id) {
 }
 
 static void pci_push(pci_t *pci, uint16_t vendor_id, uint16_t device_id, uint16_t addr) {
-  pci->devices = realloc(pci->devices, (pci->device_count + 1) * )
-  
+  pci = realloc(pci, sizeof(pci_t) + (pci->device_count + 1) * sizeof(pci_device_t));
   pci->device_count++; /* TODO */
 }
 

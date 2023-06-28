@@ -1,5 +1,6 @@
 #!/usr/bin/sh
 
+set -e
 read -p "[nop] By pressing Enter, you will be deleting all previous cross-compilers installed. Do you want to proceed?"
 
 rm -rf tools
@@ -18,7 +19,7 @@ cd tools
   cd binutils-2.21.1/build
     ../configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror --enable-obsolete
     
-    make -j5
+    make -j$(nproc)
     make install
   cd ../..
   
@@ -36,8 +37,8 @@ cd tools
     export CC="gcc -fgnu89-inline"
     export CXX="g++ -fgnu89-inline"
     
-    make MAKEINFO=true all-gcc -j5
-    make MAKEINFO=true all-target-libgcc -j5
+    make MAKEINFO=true all-gcc -j$(nproc)
+    make MAKEINFO=true all-target-libgcc -j$(nproc)
     make MAKEINFO=true install-gcc
     make MAKEINFO=true install-target-libgcc
   cd ../..

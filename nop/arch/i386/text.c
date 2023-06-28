@@ -58,7 +58,7 @@ void text_write(const char *str, size_t n) {
 }
 
 static int text_device_feature(device_t *device, int feature) {
-  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || FEATURE_PAGE_SIZE) {
+  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || feature == FEATURE_PAGE_SIZE) {
     return 1;
   }
   
@@ -71,6 +71,7 @@ static void text_device_commit(device_t *device) {
 
 static size_t text_device_write(device_t *device, const void *ptr, size_t n) {
   text_write(ptr, n);
+  return 0;
 }
 
 static size_t text_device_read(device_t *device, void *ptr, size_t n) {
