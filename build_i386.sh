@@ -1,7 +1,13 @@
 #!/usr/bin/sh
 
-set -xe
+set -e
 source ./prebuild.sh
+
+if test "$#" -eq 1 && test "$1" = "--mkiso"; then
+  export MKISO=1
+else
+  export MKISO=0
+fi
 
 if test "$#" -eq 1 && test "$1" = "--dirty"; then
   export DIRTY=1
@@ -29,38 +35,56 @@ find ./lib -name "*.asm" -exec nasm ${ASMFLAGS}{} -o {}.o \;
 i386-coff-gcc -T files/i386/linker.ld -o build/nop_i386.exe -ffreestanding -O2 -nostdlib -lgcc \
   $(find ./nop -name "*.o") $(find ./lib -name "*.o")
 
-if test ${DIRTY} -eq 0; then
-  dd if=/dev/zero of=build/test_image.img count=266248 conv=fsync status=progress
-fi
+make_iso() {
+  rm -rf iso
+  mkdir -p iso/boot/grub
 
-export LOOP=$(sudo losetup -f)
-mkdir -p mnt
+  cp build/nop_i386.exe iso/boot/nop_i386.exe
+  cp files/i386/grub.cfg iso/boot/grub/grub.cfg
 
-sudo losetup -P ${LOOP} build/test_image.img
+  grub-mkrescue -o nop.iso iso
+}
 
-if test ${DIRTY} -eq 0; then
-  sudo sfdisk ${LOOP} << EOF
-  label: dos
-  unit: sectors
-  
-  2MiB, ,
+make_image() {
+  if test ${DIRTY} -eq 0; then
+    dd if=/dev/zero of=build/test_image.img count=266248 conv=fsync status=progress
+  fi
+
+  export LOOP=$(sudo losetup -f)
+  mkdir -p mnt
+
+  sudo losetup -P ${LOOP} build/test_image.img
+
+  if test ${DIRTY} -eq 0; then
+    sudo sfdisk ${LOOP} << EOF
+    label: dos
+    unit: sectors
+    
+    2MiB, ,
 EOF
-  
-  sudo mkfs.nilfs2 ${LOOP}p1
+    
+    sudo mkfs.nilfs2 ${LOOP}p1
+  fi
+
+  sudo mount ${LOOP}p1 mnt
+  sudo mkdir -p mnt/boot/grub
+
+  sudo cp build/nop_i386.exe mnt/boot/nop_i386.exe
+  sudo cp files/i386/grub.cfg mnt/boot/grub/grub.cfg
+
+  if test ${DIRTY} -eq 0; then
+    sudo grub-install --target=i386-pc --locales=es --modules="part_msdos nilfs2" \
+      --install-modules="part_apple part_msdos part_gpt nilfs2 multiboot2" --boot-directory=mnt/boot ${LOOP}
+  fi
+
+  sudo umount mnt
+
+  sudo losetup -D ${LOOP}
+  sudo rm -rf mnt
+}
+
+if test ${MKISO} -eq 1; then
+  make_iso
+else
+  make_image
 fi
-
-sudo mount ${LOOP}p1 mnt
-sudo mkdir -p mnt/boot/grub
-
-sudo cp build/nop_i386.exe mnt/boot/nop_i386.exe
-sudo cp files/i386/grub.cfg mnt/boot/grub/grub.cfg
-
-if test ${DIRTY} -eq 0; then
-  sudo grub-install --target=i386-pc --locales=es --modules="part_msdos nilfs2" \
-    --install-modules="part_apple part_msdos part_gpt nilfs2 multiboot2" --boot-directory=mnt/boot ${LOOP}
-fi
-
-sudo umount mnt
-
-sudo losetup -D ${LOOP}
-sudo rm -rf mnt

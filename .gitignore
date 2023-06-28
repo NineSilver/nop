@@ -1,6 +1,9 @@
 include/nop/arch/x86/multiboot2.h
 build
 tools
+
 mnt
+iso
+nop.iso
 
 **/*.o
