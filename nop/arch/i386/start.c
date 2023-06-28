@@ -3,6 +3,7 @@
 #include <nop/arch/i386/multiboot2.h>
 #include <nop/arch/i386/serial.h>
 #include <nop/arch/i386/text.h>
+#include <nop/arch/i386/idt.h>
 #include <nop/arch/i386/pci.h>
 #include <nop/start.h>
 #include <nop/log.h>
@@ -102,6 +103,13 @@ void i386_start_c(void *tags) {
   }
   
   start_task_t tasks[] = {
+    (start_task_t){
+      .handle = idt_task,
+      .needs = "",
+      
+      .done = 0,
+    },
+    
     (start_task_t){
       .handle = text_task,
       .needs = "",
