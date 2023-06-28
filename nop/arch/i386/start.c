@@ -104,27 +104,21 @@ void i386_start_c(void *tags) {
   start_task_t tasks[] = {
     (start_task_t){
       .handle = text_task,
-      
-      .needs = NULL,
-      .need_count = 0,
+      .needs = "",
       
       .done = 0,
     },
     
     (start_task_t){
       .handle = serial_task,
-      
-      .needs = NULL,
-      .need_count = 0,
+      .needs = "",
       
       .done = 0,
     },
     
     (start_task_t){
       .handle = pci_task,
-      
-      .needs = NULL,
-      .need_count = 0,
+      .needs = "",
       
       .done = 0,
     },
