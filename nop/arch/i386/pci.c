@@ -73,6 +73,8 @@ static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
       offset++, ptr++, n--;
     }
   }
+  
+  device->data = (void *)(offset);
 }
 
 static void pci_device_seek(device_t *device, ssize_t offset, int seek_mode) {

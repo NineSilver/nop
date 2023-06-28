@@ -49,12 +49,14 @@ static int pci_close(tree_t *tree, int id) {
   return 1;
 }
 
-static void pci_push(pci_t *pci, uint16_t vendor_id, uint16_t device_id, uint16_t addr) {
+static pci_t *pci_push(pci_t *pci, uint16_t vendor_id, uint16_t device_id, uint16_t addr) {
   pci = realloc(pci, sizeof(pci_t) + (pci->device_count + 1) * sizeof(pci_device_t));
   pci->device_count++; /* TODO */
+  
+  return pci;
 }
 
-static void pci_test(pci_t *pci, uint16_t addr) {
+static pci_t *pci_test(pci_t *pci, uint16_t addr) {
   addr &= 0xFFF8; /* Masking out the 'func' bits, as we are checking them manually. */
   int i;
   
@@ -71,7 +73,9 @@ static void pci_test(pci_t *pci, uint16_t addr) {
       continue;
     }
     
-    pci_push(pci, vendor_id, device_id, addr);
+    /* log(LOG_DEBUG, "%04X_%04X_%04X\n", vendor_id, device_id, addr); */
+    
+    pci = pci_push(pci, vendor_id, device_id, addr);
     
     if (!i) {
       uint8_t header_type;
@@ -86,6 +90,8 @@ static void pci_test(pci_t *pci, uint16_t addr) {
     
     addr++;
   }
+  
+  return pci;
 }
 
 int pci_init(tree_t *tree, int id) {
@@ -106,8 +112,7 @@ int pci_init(tree_t *tree, int id) {
     return 0;
   }
   
-  tree->data = malloc(sizeof(pci_t));
-  pci_t *pci = tree->data;
+  pci_t *pci = malloc(sizeof(pci_t));
   
   pci->device_count = 0;
   pci->id = id;
@@ -115,8 +120,10 @@ int pci_init(tree_t *tree, int id) {
   size_t i;
   
   for (i = 0; i < 8192; i++) {
-    pci_test(pci, i << 3);
+    pci = pci_test(pci, i << 3);
   }
+  
+  tree->data = pci;
   
   tree->mount = pci_mount;
   tree->free = pci_free;

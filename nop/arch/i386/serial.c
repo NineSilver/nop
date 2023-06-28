@@ -102,7 +102,7 @@ void serial_task(void) {
       .name = "term",
       .is_public = 1,
       
-      .data = (void *)(port),
+      .data = (void *)((size_t)(port)),
       .free = 0,
       
       .feature = serial_device_feature,
@@ -114,8 +114,6 @@ void serial_task(void) {
       .trim = serial_device_trim,
     }, 0);
   }
-  
-  return 0;
 }
 
 #endif
