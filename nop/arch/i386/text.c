@@ -12,8 +12,6 @@ int text_width, text_height;
 int text_x, text_y;
 uint16_t text_color;
 
-int print_serial = 1;
-
 void text_init(void *ptr, int width, int height, uint16_t color) {
   text_ptr = ptr;
   
@@ -27,10 +25,6 @@ void text_init(void *ptr, int width, int height, uint16_t color) {
 }
 
 void text_putchar(char chr) {
-  if (print_serial) {
-    write_serial(chr);
-  }
-
   if (text_x >= text_width || chr == '\n') {
     text_x = 0;
     text_y++;
@@ -97,10 +91,6 @@ static void text_device_trim(device_t *device) {
 }
 
 void text_task(void) {
-  if (init_serial()) {
-    print_serial = 0;
-  }
-
   device_add((device_t){
     .name = "term",
     .is_public = 1,

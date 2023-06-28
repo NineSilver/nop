@@ -3,9 +3,12 @@
 
 #include <stdint.h>
 
-void write_serial(uint8_t chr);
-uint8_t read_serial();
+int serial_write_ready(uint16_t port); 
+int serial_read_ready(uint16_t port);
 
-int init_serial(void);
+void    serial_write(uint16_t port, uint8_t value);
+uint8_t serial_read(uint16_t port);
+
+void serial_task(void);
 
 #endif
