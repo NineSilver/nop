@@ -1,24 +1,23 @@
 #!/usr/bin/sh
 
-set -e
+set -xe
 source ./prebuild.sh
 
-if test "$#" -eq 1 && test "$1" = "--mkiso"; then
-  export MKISO=1
-else
-  export MKISO=0
-fi
-
-if test "$#" -eq 1 && test "$1" = "--dirty"; then
-  export DIRTY=1
-else
-  read -p "[nop] By pressing Enter, you will be deleting all previous test images and executables. Do you want to proceed?"
-  export DIRTY=0
+if test "$#" -eq 1; then
+  if test "$1" = "--dirty"; then
+    export DIRTY=1
+  else
+    export DIRTY=0
+  fi
   
-  rm -rf build
-  mkdir -p build
+  if test "$1" = "--mkiso"; then
+    export MKISO=1
+  else
+    export MKISO=0
+  fi
 fi
 
+mkdir -p build
 rm -f $(find ./nop -name "*.o") $(find ./lib -name "*.o")
 
 echo "[nop] Building nop kernel image..."
@@ -35,17 +34,17 @@ find ./lib -name "*.asm" -exec nasm ${ASMFLAGS}{} -o {}.o \;
 i386-coff-gcc -T files/i386/linker.ld -o build/nop_i386.exe -ffreestanding -O2 -nostdlib -lgcc \
   $(find ./nop -name "*.o") $(find ./lib -name "*.o")
 
-make_iso() {
-  rm -rf iso
+make_test_iso() {
   mkdir -p iso/boot/grub
 
   cp build/nop_i386.exe iso/boot/nop_i386.exe
   cp files/i386/grub.cfg iso/boot/grub/grub.cfg
 
-  grub-mkrescue -o nop.iso iso
+  grub-mkrescue -o build/test_iso.iso iso
+  rm -rf iso
 }
 
-make_image() {
+make_test_image() {
   if test ${DIRTY} -eq 0; then
     dd if=/dev/zero of=build/test_image.img count=266248 conv=fsync status=progress
   fi
@@ -57,10 +56,10 @@ make_image() {
 
   if test ${DIRTY} -eq 0; then
     sudo sfdisk ${LOOP} << EOF
-    label: dos
-    unit: sectors
-    
-    2MiB, ,
+      label: dos
+      unit: sectors
+      
+      2MiB, ,
 EOF
     
     sudo mkfs.nilfs2 ${LOOP}p1
@@ -74,17 +73,18 @@ EOF
 
   if test ${DIRTY} -eq 0; then
     sudo grub-install --target=i386-pc --locales=es --modules="part_msdos nilfs2" \
-      --install-modules="part_apple part_msdos part_gpt nilfs2 multiboot2" --boot-directory=mnt/boot ${LOOP}
+      --install-modules="part_apple part_msdos part_gpt nilfs2 multiboot2" \
+      --boot-directory=mnt/boot ${LOOP}
   fi
 
   sudo umount mnt
-
   sudo losetup -D ${LOOP}
-  sudo rm -rf mnt
+  
+  rm -rf mnt
 }
 
 if test ${MKISO} -eq 1; then
-  make_iso
+  make_test_iso
 else
-  make_image
+  make_test_image
 fi
