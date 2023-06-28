@@ -32,6 +32,9 @@ TODO
     - [ ] fat16
     - [ ] fat32
   - [ ] Event system (nop/event).
+  - [ ] Running unit system (nop/unit).
+    - [ ] Kernel call handling (with BSON).
+  - [ ] Make codebase SMP-friendly (sounds like a huge task to me, I have no idea how to...).
 - i386
   - [x] Entry point.
   - PCI (nop/arch/i386/pci).
@@ -40,6 +43,7 @@ TODO
     - [x] Read support.
   - [x] VGA text mode (nop/arch/i386/text).
   - [x] Serial ports (nop/arch/i386/serial).
+  - [ ] AHCI (nop/arch/i386/ahci).
 - x86_64
   - [ ] Entry point.
 - armv7/v8
