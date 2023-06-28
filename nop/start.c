@@ -59,6 +59,7 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   
   for (i = 0; i < task_count; i++) {
     tasks[i].handle();
+    tree_mount(&root);
   }
   
   /*
@@ -70,23 +71,6 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   "$logs"
   "$pci0/vvvv_dddd_iiii"
   */
-  
-  int disk_id = tree_open(&root, "$pci0");
-  
-  if (disk_id >= 0) {
-    size_t count = 256; // device_feature(disk_id, FEATURE_PAGE_SIZE);
-    
-    uint8_t buffer[count];
-    device_read(disk_id, buffer, count);
-    
-    for (i = 0; i < count; i++) {
-      log(LOG_INFO, "%02X", buffer[i]);
-      
-      if (i % 16 == 15) {
-        log(LOG_INFO, "\n");
-      }
-    }
-  }
   
   const char *text = "Hello, world!\n";
   

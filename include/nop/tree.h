@@ -21,6 +21,7 @@ struct tree_t {
   tree_t *childs;
   size_t child_count;
   
+  void (*mount)(tree_t *tree);
   void (*free)(tree_t *tree);
   
   int (*open)(tree_t *tree, const char *path);
@@ -35,6 +36,7 @@ extern const int tree_type_count;
 extern tree_t root;
 
 int  tree_init(tree_t *tree, int id);
+void tree_mount(tree_t *tree);
 void tree_free(tree_t *tree);
 
 int tree_is_tree(tree_t *tree, const char *path);

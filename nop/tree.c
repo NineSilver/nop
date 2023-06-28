@@ -25,6 +25,10 @@ int tree_init(tree_t *tree, int id) {
   return 0;
 }
 
+void tree_mount(tree_t *tree) {
+  tree->mount(tree);
+}
+
 void tree_free(tree_t *tree) {
   size_t i;
   

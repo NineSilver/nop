@@ -7,6 +7,10 @@
 #include <alloc.h>
 #include <nop.h>
 
+static void pci_mount(tree_t *tree) {
+  return;
+}
+
 static void pci_free(tree_t *tree) {
   free(tree->data);
 }
@@ -78,8 +82,20 @@ static void pci_test(pci_t *pci, uint16_t addr) {
 }
 
 int pci_init(tree_t *tree, int id) {
-  if (id < 0) {
-    log(LOG_DEBUG, "[pci] Cannot create a 'pci' tree at 0x%08X, as it does not have a device attached.\n", tree);
+  if (id < 0 || !device_feature(id, FEATURE_PRESENT)) {
+    log(LOG_DEBUG, "[pci] Cannot mount 'pci' at 0x%08X, as it does not have a device attached.\n", tree);
+    return 0;
+  }
+  
+  if (memcmp(tree->name, "$pci", 4)) {
+    /* TODO: Do this in a cleaner way, maybe don't even require this? */
+    
+    log(LOG_DEBUG, "[pci] Cannot mount 'pci' at 0x%08X, as it is not named '$pci*'.\n", tree);
+    return 0;
+  }
+  
+  if (!device_feature(id, FEATURE_WRITE) || !device_feature(id, FEATURE_READ) || !device_feature(id, FEATURE_SEEK)) {
+    log(LOG_DEBUG, "[pci] Cannot mount 'pci' at 0x%08X, as it does not have the needed features..\n", tree);
     return 0;
   }
   
@@ -95,6 +111,7 @@ int pci_init(tree_t *tree, int id) {
     pci_test(pci, i << 3);
   }
   
+  tree->mount = pci_mount;
   tree->free = pci_free;
   
   tree->open = pci_open;
@@ -102,7 +119,7 @@ int pci_init(tree_t *tree, int id) {
   tree->delete = pci_delete;
   tree->close = pci_close;
   
-  log(LOG_INFO, "[pci] Created 'pci' tree at 0x%08X, attached to device %d.\n", tree, id);
+  log(LOG_INFO, "[pci] Mounted 'pci' at 0x%08X, attached to device %d.\n", tree, id);
   log(LOG_INFO, "  => Found %u PCI devices.\n", pci->device_count);
   
   return 1;
