@@ -1,3 +1,4 @@
+#include <nop/arch/i386/asm.h>
 #include <nop/arch/i386/serial.h>
 
 #define COM_1_PORT 0x3F8
@@ -12,7 +13,7 @@ int serial_received() {
 
 void write_serial(uint8_t chr) {
    while (is_transmit_empty() == 0);
-   outb(COM_1_PORT + 0, chr);
+   outb(chr, COM_1_PORT + 0);
 }
 
 uint8_t read_serial() {
@@ -21,22 +22,22 @@ uint8_t read_serial() {
 }
 
 int init_serial(void) {
-  outb(COM_1_PORT + 1, 0x00);
-  outb(COM_1_PORT + 3, 0x80);
-  outb(COM_1_PORT + 0, 0x03);
-  outb(COM_1_PORT + 1, 0x00);
-  outb(COM_1_PORT + 3, 0x03);
-  outb(COM_1_PORT + 2, 0xC7);
-  outb(COM_1_PORT + 4, 0x0B);
+  outb(0x00, COM_1_PORT + 1);
+  outb(0x80, COM_1_PORT + 3);
+  outb(0x03, COM_1_PORT + 0);
+  outb(0x00, COM_1_PORT + 1);
+  outb(0x03, COM_1_PORT + 3);
+  outb(0xC7, COM_1_PORT + 2);
+  outb(0x0B, COM_1_PORT + 4);
   
   /* Set loopback mode and test the device. */
-  outb(COM_1_PORT + 4, 0x1E);
-  outb(COM_1_PORT + 0, 0xAE);
+  outb(0x1E, COM_1_PORT + 4);
+  outb(0xAE, COM_1_PORT + 0);
 
   if (inb(COM_1_PORT + 0) != 0xAE) {
     return 1;
   }
 
-  outb(COM_1_PORT + 4, 0x0F); /* Set it to normal mode. */
+  outb(0x0F, COM_1_PORT + 4); /* Set it to normal mode. */
   return 0;
 }

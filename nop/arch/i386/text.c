@@ -27,6 +27,10 @@ void text_init(void *ptr, int width, int height, uint16_t color) {
 }
 
 void text_putchar(char chr) {
+  if (print_serial) {
+    write_serial(chr);
+  }
+
   if (text_x >= text_width || chr == '\n') {
     text_x = 0;
     text_y++;
@@ -42,10 +46,6 @@ void text_putchar(char chr) {
   }
   
   text_ptr[text_x++ + text_y * text_width] = (uint16_t)(chr) | text_color;
-  
-  if (print_serial) {
-    write_serial(chr);
-  }
 }
 
 void text_scroll(void) {
