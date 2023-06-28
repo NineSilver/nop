@@ -69,7 +69,7 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   "$cdrom0/autorun.inf"
   "$mouse0"
   "$logs"
-  "$pci0/vvvv_dddd_iiii"
+  "$pci0/vvvv_dddd_aaaa"
   */
   
   const char *text = "Hello, world!\n";

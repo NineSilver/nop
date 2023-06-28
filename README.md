@@ -31,7 +31,7 @@ TODO
     - [ ] fat12
     - [ ] fat16
     - [ ] fat32
-  - [ ] Event system (nop/event).
+  - [x] Event system (nop/event).
   - [ ] Running unit system (nop/unit).
     - [ ] Kernel call handling (with BSON).
   - [ ] Make codebase SMP-friendly (sounds like a huge task to me, I have no idea how to...).
