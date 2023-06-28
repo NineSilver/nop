@@ -9,6 +9,7 @@ typedef struct list_t list_t;
 
 struct list_t {
   char name[NAME_LENGTH + 1];
+  int can_open, can_list;
 } __attribute__((packed));
 
 #endif

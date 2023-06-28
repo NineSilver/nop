@@ -30,6 +30,21 @@ void ulong_to_str(unsigned long value, int base, char *str, size_t n) {
   }
 }
 
+void ulong_to_str_align(unsigned long value, int base, char *str, size_t n) {
+  *(str--) = '\0';
+  
+  while (n && value) {
+    *(str--) = digits[value % base];
+    value /= base;
+    
+    n--;
+  }
+  
+  while (n--) {
+    *(str--) = '0';
+  }
+}
+
 unsigned long str_to_ulong(int base, const char *str, size_t n) {
   unsigned long value = 0;
   
@@ -76,3 +91,4 @@ long str_to_long(int base, const char *str, size_t n) {
   
   return value;
 }
+
