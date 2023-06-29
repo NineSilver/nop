@@ -14,10 +14,10 @@ jobs:
       - name: Update repositories
         run: sudo apt update
       - name: Install dependencies
-        run: sudo apt install -y libmpc-dev nasm grub2 xorriso
+        run: sudo apt install -y libmpc-dev nasm grub-pc-bin xorriso mtools
 
       - name: Build the i386 toolchain
-        run: echo | bash tools_i386.sh
+        run: echo | bash tools_i386.sh &> /dev/null
       - name: Build the i386 ISO image
         run: bash build_i386.sh --mkiso
 
