@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 typedef struct idt_entry_t idt_entry_t;
+typedef struct idt_frame_t idt_frame_t;
 
 enum {
   idt_task_gate    = 0x05,
@@ -26,8 +27,15 @@ struct idt_entry_t {
   uint16_t offset_high;
 } __attribute__((packed));
 
-extern idt_entry_t idt_entries[];
+struct idt_frame_t {
+  uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+  uint32_t eip, cs, eflags;
+} __attribute__((packed));
 
+extern idt_entry_t idt_entries[];
+extern void (*idt_handles[]);
+
+void idt_handle(uint32_t id, idt_frame_t *frame);
 void idt_task(void);
 
 #endif

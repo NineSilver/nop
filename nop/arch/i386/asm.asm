@@ -371,13 +371,16 @@ cli:
 lidt:
   pushad
   mov edi, [esp + 32 + 4]
-  mov [.idt], edi
-  lidt [.idt_ptr]
+  mov [idt], edi
+  lidt [idt_ptr]
   popad
   ret
-.idt_ptr:
+
+section .data
+
+idt_ptr:
   dw 0x0800
-.idt:
+idt:
   dd 0x00000000
 
 %endif

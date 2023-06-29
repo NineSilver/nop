@@ -22,7 +22,7 @@ rm -f $(find ./nop -name "*.o") $(find ./lib -name "*.o")
 
 echo "[nop] Building nop kernel image..."
 
-export CFLAGS="-Iinclude -ffreestanding -O2 -fms-extensions -std=gnu89 -D__I386__ -D__NOP_KERNEL__ -D__NOP__"
+export CFLAGS="-Iinclude -ffreestanding -O2 -fms-extensions -std=gnu89 -mno-red-zone -D__I386__ -D__NOP_KERNEL__ -D__NOP__"
 export ASMFLAGS="-fcoff -D__I386__ -D__NOP_KERNEL__ -D__NOP__"
 
 find ./nop -name "*.c" -exec i386-coff-gcc -c ${CFLAGS} {} -o {}.o \;
