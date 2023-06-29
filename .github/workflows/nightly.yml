@@ -1,0 +1,28 @@
+name: Nightly build
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Update repositories
+        run: sudo apt update
+      - name: Update dependencies
+        run: sudo apt install -y libmpc-dev nasm grub2 xorriso
+
+      - name: Build the i386 toolchain
+        run: bash tools_i386.sh
+      - name: Build the i386 ISO image
+        run: bash build_i386.sh --mkiso
+
+      - name: Create an artifact with the ISO image
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-iso
+          path: build/test_iso.iso
