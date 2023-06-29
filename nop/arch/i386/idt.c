@@ -21,6 +21,7 @@ void idt_task(void) {
       
       .gate_type = idt_int_gate_32, /* TODO: Detect trap gates. */
       .max_ring = 0, /* Kernel-only. TODO: Don't. */
+      .present = 1,
       
       .offset_high = (uint16_t)((size_t)(idt_handles[i]) >> 16),
     };

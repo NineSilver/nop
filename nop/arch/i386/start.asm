@@ -68,6 +68,7 @@ i386_start:
   jne .end
   
   mov esp, stack_bss.end
+  lgdt [gdt_ptr]
   
   push ebx
   call i386_start_c
@@ -75,5 +76,47 @@ i386_start:
 .end:
   hlt
   jmp .end
+
+; Did not remove the comments for comedy's sake, as this is the
+; same GDT every single OSdev-related project I have done in my
+; entire life. Please, do not mind the lack of spaces after
+; parentheses.
+
+; Wow, a GDT table!
+gdt:
+; Even better, a GDT table pointer(in the null entry)!
+gdt_ptr:
+  dw (gdt_end - gdt)
+  dd gdt
+  dw 0x0000
+gdt_code_32:
+  dw 0xFFFF     ; Limit(bits 0-15)
+  dw 0x0000     ; Base(bits 0-15)
+  db 0x00       ; Base(bits 16-23)
+  db 0b10011010 ; Access byte
+  db 0b11001111 ; Flags & limit(bits 16-19)
+  db 0x00       ; Base(bits 24-31)
+gdt_data_32:
+  dw 0xFFFF     ; Limit(bits 0-15)
+  dw 0x0000     ; Base(bits 0-15)
+  db 0x00       ; Base(bits 16-23)
+  db 0b10010010 ; Access byte
+  db 0b11001111 ; Flags & limit(bits 16-19)
+  db 0x00       ; Base(bits 24-31)
+gdt_code_16:
+  dw 0xFFFF     ; Limit(bits 0-15)
+  dw 0x0000     ; Base(bits 0-15)
+  db 0x00       ; Base(bits 16-23)
+  db 0b10011010 ; Access byte
+  db 0b00001111 ; Flags & limit(bits 16-19)
+  db 0x00       ; Base(bits 24-31)
+gdt_data_16:
+  dw 0xFFFF     ; Limit(bits 0-15)
+  dw 0x0000     ; Base(bits 0-15)
+  db 0x00       ; Base(bits 16-23)
+  db 0b10010010 ; Access byte
+  db 0b00001111 ; Flags & limit(bits 16-19)
+  db 0x00       ; Base(bits 24-31)
+gdt_end:
 
 %endif

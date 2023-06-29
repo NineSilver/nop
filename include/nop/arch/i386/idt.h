@@ -23,6 +23,7 @@ struct idt_entry_t {
   uint8_t gate_type: 4;
   uint8_t zero: 1;
   uint8_t max_ring: 2; /* Highest ring that could 'int 0xNN' this entry (inclusive). */
+  uint8_t present: 1;
   
   uint16_t offset_high;
 } __attribute__((packed));
