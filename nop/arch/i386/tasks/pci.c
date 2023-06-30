@@ -7,8 +7,6 @@
 
 const start_task_t pci_start_task = (start_task_t){
   .handle = pci_task,
-  .needs = "",
-  
   .done = 0,
 };
 

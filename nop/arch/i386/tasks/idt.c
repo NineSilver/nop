@@ -10,8 +10,6 @@
 
 const start_task_t idt_start_task = (start_task_t){
   .handle = idt_task,
-  .needs = "",
-  
   .done = 0,
 };
 

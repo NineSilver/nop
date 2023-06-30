@@ -7,8 +7,6 @@
 
 const start_task_t serial_start_task = (start_task_t){
   .handle = serial_task,
-  .needs = "",
-  
   .done = 0,
 };
 

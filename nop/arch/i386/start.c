@@ -5,6 +5,7 @@
 #include <nop/arch/i386/multiboot2.h>
 #include <nop/arch/i386/tasks/idt.h>
 #include <nop/arch/i386/tasks/pci.h>
+#include <nop/tasks/ahci.h>
 #include <nop/start.h>
 #include <nop/log.h>
 #include <alloca.h>
@@ -111,10 +112,14 @@ void i386_start_c(void *tags) {
   }
   
   start_task_t tasks[] = {
+    /* i386-specific: */
     idt_start_task,
     text_start_task,
     serial_start_task,
     pci_start_task,
+    
+    /* Generic, have to add manually as to tag them as supported: */
+    ahci_start_task,
   };
   
   start(blocks, block_count, tasks, sizeof(tasks) / sizeof(start_task_t));

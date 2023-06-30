@@ -8,8 +8,6 @@
 
 const start_task_t text_start_task = (start_task_t){
   .handle = text_task,
-  .needs = "",
-  
   .done = 0,
 };
 

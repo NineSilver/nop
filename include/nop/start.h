@@ -14,8 +14,6 @@ struct start_block_t {
 
 struct start_task_t {
   void (*handle)(void);
-  const char *needs;
-  
   int done;
 };
 
