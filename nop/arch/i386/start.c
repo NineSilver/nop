@@ -13,6 +13,12 @@
 
 extern int i386_load_start, i386_load_end, i386_bss_start, i386_bss_end;
 
+static void dummy_write(const char *str, size_t n) {
+  while (n--) {
+    serial_write(0x03F8, *(str++));
+  }
+}
+
 /* Our actual entry point, right after the Multiboot2 header and
    assembly blob. */
 
@@ -25,7 +31,9 @@ void i386_start_c(void *tags) {
   /* Start 0x000B8000 text mode, and use if for early logging (TODO: Detect!). */
   
   text_init((void *)(0x000B8000), 80, 25, 0x0F00);
+  
   log_early(text_write);
+  /* log_early(dummy_write); */
   
   log(LOG_DEBUG, "[i386] .text/.data => (0x%08X - 0x%08X)\n", &i386_load_start, &i386_load_end);
   log(LOG_DEBUG, "[i386] .bss => (0x%08X - 0x%08X)\n", &i386_bss_start, &i386_bss_end);

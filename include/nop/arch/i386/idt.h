@@ -1,6 +1,7 @@
 #ifndef __NOP_ARCH_I386_IDT_H__
 #define __NOP_ARCH_I386_IDT_H__
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct idt_entry_t idt_entry_t;
@@ -34,9 +35,9 @@ struct idt_frame_t {
 } __attribute__((packed));
 
 extern idt_entry_t idt_entries[];
-extern void (*idt_handles[]);
+extern size_t idt_handles[];
 
-void idt_handle(uint32_t id, idt_frame_t *frame);
+void idt_handle(idt_frame_t *frame, uint32_t id);
 void idt_task(void);
 
 #endif

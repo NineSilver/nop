@@ -41,7 +41,7 @@ TODO
     - [ ] Detect PCI presence instead of assuming it's there.
     - [ ] Write support.
     - [x] Read support.
-  - [ ] IDT event triggering (nop/arch/i386/idt).
+  - [x] IDT event triggering (nop/arch/i386/idt).
   - [x] VGA text mode (nop/arch/i386/text).
   - [x] Serial ports (nop/arch/i386/serial).
   - [ ] AHCI (nop/arch/i386/ahci).

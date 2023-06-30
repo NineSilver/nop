@@ -65,17 +65,27 @@ global i386_start
 
 i386_start:
   cmp eax, 0x36D76289
-  jne .end
+  jne i386_start.end
   
   mov esp, stack_bss.end
   lgdt [gdt_ptr]
   
+  mov ax, 0x0010
+  mov ds, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  mov ss, ax
+  
+  jmp 0x0008:i386_start.cs_jump
+  
+.cs_jump:
   push ebx
   call i386_start_c
   
 .end:
   hlt
-  jmp .end
+  jmp i386_start.end
 
 ; Did not remove the comments for comedy's sake, as this is the
 ; same GDT every single OSdev-related project I have done in my
