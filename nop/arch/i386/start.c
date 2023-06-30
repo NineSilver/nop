@@ -1,10 +1,10 @@
 #ifdef __I386__
 
+#include <nop/arch/i386/tasks/serial.h>
+#include <nop/arch/i386/tasks/text.h>
 #include <nop/arch/i386/multiboot2.h>
-#include <nop/arch/i386/serial.h>
-#include <nop/arch/i386/text.h>
-#include <nop/arch/i386/idt.h>
-#include <nop/arch/i386/pci.h>
+#include <nop/arch/i386/tasks/idt.h>
+#include <nop/arch/i386/tasks/pci.h>
 #include <nop/start.h>
 #include <nop/log.h>
 #include <alloca.h>

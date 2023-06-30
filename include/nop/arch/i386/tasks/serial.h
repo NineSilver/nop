@@ -1,5 +1,5 @@
-#ifndef __NOP_ARCH_I386_SERIAL_H__
-#define __NOP_ARCH_I386_SERIAL_H__
+#ifndef __NOP_ARCH_I386_TASKS_SERIAL_H__
+#define __NOP_ARCH_I386_TASKS_SERIAL_H__
 
 #include <stdint.h>
 

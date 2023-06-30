@@ -1,7 +1,7 @@
 #ifdef __I386__
 
+#include <nop/arch/i386/tasks/pci.h>
 #include <nop/arch/i386/asm.h>
-#include <nop/arch/i386/pci.h>
 #include <nop/device.h>
 #include <stdint.h>
 

@@ -1,5 +1,5 @@
-#ifndef __NOP_ARCH_I386_PCI_H__
-#define __NOP_ARCH_I386_PCI_H__
+#ifndef __NOP_ARCH_I386_TASKS_PCI_H__
+#define __NOP_ARCH_I386_TASKS_PCI_H__
 
 #include <stdint.h>
 

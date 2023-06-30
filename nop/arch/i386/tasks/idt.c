@@ -1,7 +1,7 @@
 #ifdef __I386__
 
+#include <nop/arch/i386/tasks/idt.h>
 #include <nop/arch/i386/asm.h>
-#include <nop/arch/i386/idt.h>
 #include <nop/event.h>
 #include <digits.h>
 #include <stddef.h>

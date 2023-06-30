@@ -1,6 +1,6 @@
 #ifdef __I386__
 
-#include <nop/arch/i386/serial.h>
+#include <nop/arch/i386/tasks/serial.h>
 #include <nop/arch/i386/asm.h>
 #include <nop/device.h>
 #include <stdint.h>

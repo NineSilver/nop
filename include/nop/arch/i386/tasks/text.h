@@ -1,5 +1,5 @@
-#ifndef __NOP_ARCH_I386_TEXT_H__
-#define __NOP_ARCH_I386_TEXT_H__
+#ifndef __NOP_ARCH_I386_TASKS_TEXT_H__
+#define __NOP_ARCH_I386_TASKS_TEXT_H__
 
 #include <stddef.h>
 #include <stdint.h>

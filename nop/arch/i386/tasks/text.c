@@ -1,6 +1,6 @@
 #ifdef __I386__
 
-#include <nop/arch/i386/text.h>
+#include <nop/arch/i386/tasks/text.h>
 #include <nop/device.h>
 #include <stddef.h>
 #include <stdint.h>
