@@ -20,8 +20,12 @@ static int pci_open(tree_t *tree, const char *path) {
 }
 
 static int pci_list(tree_t *tree, const char *path) {
+  if (*path) {
+    return -1;
+  }
+  
   pci_t *pci = tree->data;
-  int list = temp_alloc(pci->device_count * sizeof(list_t));
+  int list = temp_alloc("pci_list", pci->device_count * sizeof(list_t));
   
   list_t entry;
   size_t i;
@@ -34,9 +38,13 @@ static int pci_list(tree_t *tree, const char *path) {
     entry.name[4] = '_';
     entry.name[9] = '_';
     
+    entry.can_open = 1;
+    entry.can_list = 0;
+    
     device_write(list, &entry, sizeof(list_t));
   }
   
+  device_seek(list, 0, SEEK_SET);
   return list;
 }
 
@@ -45,7 +53,13 @@ static int pci_delete(tree_t *tree, const char *path) {
 }
 
 static int pci_close(tree_t *tree, int id) {
-  device_free(id);
+  if (!strcmp(devices[id].name, "pci_list")) {
+    temp_free(id);
+  } else {
+    /* TODO */
+    device_free(id);
+  }
+  
   return 1;
 }
 

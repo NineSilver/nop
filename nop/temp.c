@@ -71,14 +71,13 @@ static void temp_device_trim(device_t *device) {
   return;
 }
 
-int temp_alloc(size_t n) {
+int temp_alloc(const char *name, size_t n) {
   temp_t *temp = malloc(n + sizeof(temp_t));
   
   temp->size = n;
   temp->offset = 0;
   
-  return device_add((device_t){
-    .name = "",
+  device_t device = (device_t){
     .is_public = 0,
     
     .data = temp,
@@ -91,7 +90,10 @@ int temp_alloc(size_t n) {
     .seek = temp_device_seek,
     .tell = temp_device_tell,
     .trim = temp_device_trim,
-  }, 1);
+  };
+  
+  strcpy(device.name, name);
+  return device_add(device, 1);
 }
 
 void temp_free(int id) {

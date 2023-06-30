@@ -42,7 +42,9 @@ int device_add(device_t device, int no_suffix) {
         ulong_to_str(suffix_value, 10, devices[i].name + length, DEVICE_NAME_LENGTH - length);
       }
       
-      log(LOG_INFO, "[device] Added device '%s'.\n", devices[i].name);
+      if (devices[i].is_public) {
+        log(LOG_INFO, "[device] Added device '%s'.\n", devices[i].name);
+      }
       
       device_used++;
       return i;

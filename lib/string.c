@@ -43,7 +43,12 @@ char *strcpy(char *s1, const char *s2) {
 }
 
 char *strncpy(char *s1, const char *s2, size_t n);
-char *strcat(char *s1, const char *s2);
+
+char *strcat(char *s1, const char *s2) {
+  strcpy(s1 + strlen(s1), s2);
+  return s1;
+}
+
 char *strncat(char *s1, const char *s2, size_t n);
 
 int memcmp(const void *s1, const void *s2, size_t n) {

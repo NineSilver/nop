@@ -46,4 +46,7 @@ int tree_list(tree_t *tree, const char *path);
 int tree_delete(tree_t *tree, const char *path);
 int tree_close(tree_t *tree, int id);
 
+/* Debug-only function, for printing out trees. */
+void tree_show(tree_t *tree, const char *path, int indent);
+
 #endif

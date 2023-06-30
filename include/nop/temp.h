@@ -10,7 +10,7 @@ struct temp_t {
   uint8_t data[];
 };
 
-int  temp_alloc(size_t n);
+int  temp_alloc(const char *name, size_t n);
 void temp_free(int id);
 
 #endif

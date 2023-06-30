@@ -1,8 +1,10 @@
 #include <nop/tree/root.h>
 #include <nop/tree/pci.h>
 #include <nop/tree.h>
+#include <nop/log.h>
 #include <string.h>
 #include <alloc.h>
+#include <nop.h>
 
 const tree_type_t tree_types[] = {
   (tree_type_t){root_init},
@@ -99,8 +101,10 @@ int tree_list(tree_t *tree, const char *path) {
     return id;
   }
   
+  const char *child_path = strchrnul(path, '/');
+  
   for (i = 0; i < tree->child_count; i++) {
-    id = tree_list(tree->childs + i, path);
+    id = tree_list(tree->childs + i, child_path);
     
     if (id >= 0) {
       return id;
@@ -116,4 +120,39 @@ int tree_delete(tree_t *tree, const char *path) {
 
 int tree_close(tree_t *tree, int id) {
   // tree_root.close(&tree_root, id);
+}
+
+void tree_show(tree_t *tree, const char *path, int indent) {
+  if (indent) {
+    log(LOG_INFO, "%*s- %s:\n", (indent - 1) * 2, "", path);
+  } else {
+    log(LOG_INFO, "%s:\n", path);
+  }
+  
+  int id = tree_list(tree, path);
+  
+  char buffer[NAME_LENGTH + 1];
+  list_t entry;
+  
+  if (id < 0) {
+    return;
+  }
+  
+  while (device_read(id, &entry, sizeof(list_t)) >= sizeof(list_t)) {
+    strcpy(buffer, path);
+    
+    if (path[strlen(path) - 1] != '/') {
+      strcat(buffer, "/");
+    }
+    
+    strcat(buffer, entry.name);
+    
+    if (entry.can_list) {
+      tree_show(tree, buffer, indent + 1);
+    } else {
+      log(LOG_INFO, "%*s- %s\n", indent * 2, "", buffer);
+    }
+  }
+  
+  tree_close(tree, id);
 }

@@ -59,6 +59,8 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   
   for (i = 0; i < task_count; i++) {
     tasks[i].handle();
+    
+    /* TODO: Be smarter */
     tree_mount(&root);
   }
   
@@ -76,6 +78,8 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   
   int console_id = tree_open(&root, "$term0");
   device_write(console_id, text, strlen(text));
+  
+  tree_show(&root, "/", 0);
   
   /* It's not like we can do much more here either... */
   for (;;);
