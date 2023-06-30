@@ -1,8 +1,11 @@
 #ifndef __NOP_ARCH_I386_TASKS_TEXT_H__
 #define __NOP_ARCH_I386_TASKS_TEXT_H__
 
+#include <nop/start.h>
 #include <stddef.h>
 #include <stdint.h>
+
+extern const start_task_t text_start_task;
 
 extern uint16_t *text_ptr;
 extern int text_width, text_height;

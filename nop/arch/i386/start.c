@@ -111,33 +111,10 @@ void i386_start_c(void *tags) {
   }
   
   start_task_t tasks[] = {
-    (start_task_t){
-      .handle = idt_task,
-      .needs = "",
-      
-      .done = 0,
-    },
-    
-    (start_task_t){
-      .handle = text_task,
-      .needs = "",
-      
-      .done = 0,
-    },
-    
-    (start_task_t){
-      .handle = serial_task,
-      .needs = "",
-      
-      .done = 0,
-    },
-    
-    (start_task_t){
-      .handle = pci_task,
-      .needs = "",
-      
-      .done = 0,
-    },
+    idt_start_task,
+    text_start_task,
+    serial_start_task,
+    pci_start_task,
   };
   
   start(blocks, block_count, tasks, sizeof(tasks) / sizeof(start_task_t));

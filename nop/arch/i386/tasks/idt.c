@@ -8,6 +8,13 @@
 #include <stdint.h>
 #include <string.h>
 
+const start_task_t idt_start_task = (start_task_t){
+  .handle = idt_task,
+  .needs = "",
+  
+  .done = 0,
+};
+
 idt_entry_t idt_entries[256];
 
 static void idt_pic_on(void) {

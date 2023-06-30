@@ -5,6 +5,13 @@
 #include <nop/device.h>
 #include <stdint.h>
 
+const start_task_t pci_start_task = (start_task_t){
+  .handle = pci_task,
+  .needs = "",
+  
+  .done = 0,
+};
+
 uint32_t pci_dword(uint16_t addr, uint8_t offset) {
   offset &= 0xFC;
   

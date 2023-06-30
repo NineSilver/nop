@@ -1,8 +1,11 @@
 #ifndef __NOP_ARCH_I386_TASKS_IDT_H__
 #define __NOP_ARCH_I386_TASKS_IDT_H__
 
+#include <nop/start.h>
 #include <stddef.h>
 #include <stdint.h>
+
+extern const start_task_t idt_start_task;
 
 typedef struct idt_entry_t idt_entry_t;
 typedef struct idt_frame_t idt_frame_t;

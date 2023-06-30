@@ -6,6 +6,13 @@
 #include <stdint.h>
 #include <string.h>
 
+const start_task_t text_start_task = (start_task_t){
+  .handle = text_task,
+  .needs = "",
+  
+  .done = 0,
+};
+
 uint16_t *text_ptr;
 int text_width, text_height;
 

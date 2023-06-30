@@ -5,6 +5,13 @@
 #include <nop/device.h>
 #include <stdint.h>
 
+const start_task_t serial_start_task = (start_task_t){
+  .handle = serial_task,
+  .needs = "",
+  
+  .done = 0,
+};
+
 int serial_write_ready(uint16_t port) {
   return inb(port + 5) & 0x20;
 }
