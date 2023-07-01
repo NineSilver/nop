@@ -10,6 +10,9 @@ typedef struct pci_device_t pci_device_t;
 typedef struct pci_t pci_t;
 
 struct pci_device_t {
+  int id;
+  size_t offset;
+  
   uint16_t vendor_id, device_id;
   uint16_t addr;
 };

@@ -11,7 +11,7 @@ static void *alloc_page_alloc(size_t *n) {
   size_t count = (*n + (PAGE_SIZE - 1)) / PAGE_SIZE;
   *n = count * PAGE_SIZE;
   
-  return page_alloc(count);
+  return page_alloc(count, 1);
 }
 
 static void alloc_page_free(void *ptr, size_t n) {

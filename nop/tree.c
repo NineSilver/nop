@@ -78,8 +78,14 @@ int tree_open(tree_t *tree, const char *path) {
     return id;
   }
   
+  const char *child_path = strchrnul(path, '/');
+  
   for (i = 0; i < tree->child_count; i++) {
-    id = tree_open(tree->childs + i, path);
+    if (memcmp(tree->childs[i].name, path, child_path - path)) {
+      continue;
+    }
+    
+    id = tree_open(tree->childs + i, child_path + (*child_path == '/'));
     
     if (id >= 0) {
       return id;
@@ -104,7 +110,11 @@ int tree_list(tree_t *tree, const char *path) {
   const char *child_path = strchrnul(path, '/');
   
   for (i = 0; i < tree->child_count; i++) {
-    id = tree_list(tree->childs + i, child_path);
+    if (memcmp(tree->childs[i].name, path, child_path - path)) {
+      continue;
+    }
+    
+    id = tree_list(tree->childs + i, child_path + (*child_path == '/'));
     
     if (id >= 0) {
       return id;

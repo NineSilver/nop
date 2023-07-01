@@ -39,13 +39,15 @@ void page_mark(size_t start, size_t end, int value) {
   }
 }
 
-void *page_alloc(size_t n) {
+void *page_alloc(size_t n, size_t step) {
   /* TODO: Speed up allocation by a free chunk table or
      something? */
   
+  step = (step + (PAGE_SIZE - 1)) / PAGE_SIZE;
+  
   size_t i;
   
-  for (i = 0; i <= PAGE_COUNT - n; i++) {
+  for (i = 0; i <= PAGE_COUNT - n; i += step) {
     size_t free_pages = 0, free_start = i;
     
     while (free_pages < n && !(page_bitmap[i >> 3] & (1 << (i & 7)))) {

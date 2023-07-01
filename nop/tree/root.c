@@ -61,14 +61,14 @@ static int root_list(tree_t *tree, const char *path) {
   list_t entry;
   
   for (i = 0; i < device_total; i++) {
-    count += !devices[i].free;
+    count += (!devices[i].free && devices[i].is_public);
   }
   
   int list = temp_alloc("root_list", count * sizeof(list_t));
   /* TODO: Support root mountings. */
   
   for (i = 0; i < device_total; i++) {
-    if (devices[i].free) {
+    if (devices[i].free || !devices[i].is_public) {
       continue;
     }
     

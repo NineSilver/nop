@@ -15,7 +15,7 @@ extern uint8_t *page_bitmap;
 void  page_init(void *bitmap);
 void  page_mark(size_t start, size_t end, int value);
 
-void *page_alloc(size_t n);
+void *page_alloc(size_t n, size_t step);
 void  page_free(void *ptr, size_t n);
 
 #endif

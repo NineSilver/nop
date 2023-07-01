@@ -4,6 +4,7 @@
 #include <nop/tree.h>
 #include <nop/log.h>
 #include <digits.h>
+#include <stdint.h>
 #include <alloc.h>
 #include <nop.h>
 
@@ -15,8 +16,109 @@ static void pci_free(tree_t *tree) {
   free(tree->data);
 }
 
+static int pci_device_feature(device_t *device, int feature) {
+  if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || feature == FEATURE_READ || feature == FEATURE_SEEK) {
+    return 1;
+  }
+  
+  if (feature == FEATURE_PAGE_SIZE) {
+    return 4;
+  }
+  
+  return 0;
+}
+
+static void pci_device_commit(device_t *device) {
+  return;
+}
+
+static size_t pci_device_write(device_t *device, const void *ptr, size_t n) {
+  const size_t size = 0x0100;
+  pci_device_t *pci_device = device->data;
+  
+  if (n > size - pci_device->offset) {
+    n = size - pci_device->offset;
+  }
+  
+  device_seek(pci_device->id, pci_device->offset | ((size_t)(pci_device->addr) << 8), SEEK_SET);
+  return device_write(pci_device->id, ptr, n);
+}
+
+static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
+  const size_t size = 0x0100;
+  pci_device_t *pci_device = device->data;
+  
+  if (n > size - pci_device->offset) {
+    n = size - pci_device->offset;
+  }
+  
+  device_seek(pci_device->id, pci_device->offset | ((size_t)(pci_device->addr) << 8), SEEK_SET);
+  return device_read(pci_device->id, ptr, n);
+}
+
+static void pci_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+  const size_t size = 0x0100;
+  
+  pci_device_t *pci_device = device->data;
+  ssize_t current = pci_device->offset; /* Signed due to negative wrapping. */
+  
+  if (seek_mode == SEEK_SET) {
+    current = offset;
+  } else if (seek_mode == SEEK_END) {
+    current = offset + size;
+  } else if (seek_mode == SEEK_CUR) {
+    current += offset;
+  }
+  
+  if (current < 0) {
+    current = 0;
+  } else if (current > size) {
+    current = size;
+  }
+  
+  pci_device->offset = current;
+}
+
+static size_t pci_device_tell(device_t *device) {
+  pci_device_t *pci_device = device->data;
+  return pci_device->offset;
+}
+
+static void pci_device_trim(device_t *device) {
+  return;
+}
+
 static int pci_open(tree_t *tree, const char *path) {
-  return -1; /* TODO */
+  if (!(*path)) {
+    return -1;
+  }
+  
+  pci_t *pci = tree->data;
+  
+  pci_device_t *device = malloc(sizeof(pci_device_t));
+  
+  device->id = pci->id;
+  device->offset = 0;
+  
+  device->vendor_id = str_to_ulong(16, path + 0, 4);
+  device->device_id = str_to_ulong(16, path + 5, 4);
+  device->addr = str_to_ulong(16, path + 10, 4);
+  
+  device_add((device_t){
+    .name = "pci_open",
+    .is_public = 0,
+    
+    .data = device,
+    .free = 0,
+    
+    .feature = pci_device_feature,
+    .commit = pci_device_commit,
+    .write = pci_device_write,
+    .read = pci_device_read,
+    .seek = pci_device_seek,
+    .tell = pci_device_tell,
+    .trim = pci_device_trim,
+  }, 1);
 }
 
 static int pci_list(tree_t *tree, const char *path) {
@@ -65,7 +167,15 @@ static int pci_close(tree_t *tree, int id) {
 
 static pci_t *pci_push(pci_t *pci, uint16_t vendor_id, uint16_t device_id, uint16_t addr) {
   pci = realloc(pci, sizeof(pci_t) + (pci->device_count + 1) * sizeof(pci_device_t));
-  pci->device_count++; /* TODO */
+  
+  pci->devices[pci->device_count++] = (pci_device_t){
+    .id = pci->id,
+    .offset = 0,
+    
+    .vendor_id = vendor_id,
+    .device_id = device_id,
+    .addr = addr,
+  };
   
   return pci;
 }

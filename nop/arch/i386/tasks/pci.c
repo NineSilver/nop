@@ -10,20 +10,18 @@ const start_task_t pci_start_task = (start_task_t){
   .done = 0,
 };
 
-uint32_t pci_dword(uint16_t addr, uint8_t offset) {
+static void pci_dword_write(uint16_t addr, uint8_t offset, uint32_t value) {
+  offset &= 0xFC;
+  
+  outd(0x80000000 | ((uint32_t)(addr) << 8) | (uint32_t)(offset), 0x0CF8);
+  outd(value, 0x0CFC);
+}
+
+static uint32_t pci_dword_read(uint16_t addr, uint8_t offset) {
   offset &= 0xFC;
   
   outd(0x80000000 | ((uint32_t)(addr) << 8) | (uint32_t)(offset), 0x0CF8);
   return ind(0x0CFC);
-}
-
-uint16_t pci_word(uint16_t addr, uint8_t offset) {
-  offset &= 0xFE;
-  return (uint16_t)(pci_dword(addr, offset) >> ((offset & 2) << 3));
-}
-
-uint8_t pci_byte(uint16_t addr, uint8_t offset) {
-  return (uint8_t)(pci_dword(addr, offset) >> ((offset & 3) << 3));
 }
 
 static int pci_device_feature(device_t *device, int feature) {
@@ -43,7 +41,43 @@ static void pci_device_commit(device_t *device) {
 }
 
 static size_t pci_device_write(device_t *device, const void *ptr, size_t n) {
-  return 0; /* TODO: Implement writes. */
+  const size_t size = 0x01000000; /* 16 MiB total, 2^16 devices times 2^8 offsets. */
+  size_t offset = (size_t)(device->data);
+  
+  if (n > size - offset) {
+    n = size - offset;
+  }
+  
+  if (offset & 3) {
+    uint32_t value = pci_dword_read(offset >> 8, offset);
+    uint8_t *bytes = (uint8_t *)(&value);
+    
+    while (n && (offset & 3)) {
+      bytes[offset & 3] = *((uint8_t *)(ptr));
+      offset++, ptr++, n--;
+    }
+    
+    pci_dword_write(offset >> 8, offset, value);
+  }
+  
+  while (n >= 4) {
+    pci_dword_write(offset >> 8, offset, *((uint32_t *)(ptr)));
+    offset += 4, ptr += 4, n -= 4;
+  }
+  
+  if (n & 3) {
+    uint32_t value = pci_dword_read(offset >> 8, offset);
+    uint8_t *bytes = (uint8_t *)(&value);
+    
+    while (n) {
+      bytes[offset & 3] = *((uint8_t *)(ptr));
+      offset++, ptr++, n--;
+    }
+    
+    pci_dword_write(offset >> 8, offset, value);
+  }
+  
+  device->data = (void *)(offset);
 }
 
 static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
@@ -55,7 +89,7 @@ static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
   }
   
   if (offset & 3) {
-    uint32_t value = pci_dword(offset >> 8, offset);
+    uint32_t value = pci_dword_read(offset >> 8, offset);
     uint8_t *bytes = (uint8_t *)(&value);
     
     while (n && (offset & 3)) {
@@ -65,12 +99,12 @@ static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
   }
   
   while (n >= 4) {
-    *((uint32_t *)(ptr)) = pci_dword(offset >> 8, offset);
+    *((uint32_t *)(ptr)) = pci_dword_read(offset >> 8, offset);
     offset += 4, ptr += 4, n -= 4;
   }
   
   if (n & 3) {
-    uint32_t value = pci_dword(offset >> 8, offset);
+    uint32_t value = pci_dword_read(offset >> 8, offset);
     uint8_t *bytes = (uint8_t *)(&value);
     
     while (n) {

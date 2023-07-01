@@ -10,10 +10,6 @@
 
 extern const start_task_t pci_start_task;
 
-uint32_t pci_dword(uint16_t addr, uint8_t offset);
-uint16_t pci_word(uint16_t addr, uint8_t offset);
-uint8_t  pci_byte(uint16_t addr, uint8_t offset);
-
 void pci_task(void);
 
 #endif

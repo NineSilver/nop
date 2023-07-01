@@ -3,6 +3,11 @@
 
 #include <nop/start.h>
 
+#define AHCI_SIG_ATA   0x00000101
+#define AHCI_SIG_ATAPI 0xEB140101
+#define AHCI_SIG_SEMB  0xC33C0101
+#define AHCI_SIG_PM    0x96690101
+
 typedef volatile struct hba_port_t hba_port_t;
 typedef volatile struct hba_table_t hba_table_t;
 
