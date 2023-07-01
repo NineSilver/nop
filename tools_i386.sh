@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-set -e
+set -xe
 read -p "[nop] By pressing Enter, you will be deleting all previous cross-compilers installed. Do you want to proceed?"
 
 rm -rf tools

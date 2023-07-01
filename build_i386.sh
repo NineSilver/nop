@@ -3,17 +3,16 @@
 set -xe
 source ./prebuild.sh
 
+export DIRTY=0
+export MKISO=0
+
 if test "$#" -eq 1; then
   if test "$1" = "--dirty"; then
     export DIRTY=1
-  else
-    export DIRTY=0
   fi
   
   if test "$1" = "--mkiso"; then
     export MKISO=1
-  else
-    export MKISO=0
   fi
 fi
 
