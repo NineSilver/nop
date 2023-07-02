@@ -110,3 +110,13 @@ const char *strchrnul(const char *str, char c) {
   
   return str + strlen(str);
 }
+
+void *memset(void *ptr, char c, size_t n) {
+  char *str = ptr;
+  
+  while (n--) {
+    *(str++) = c;
+  }
+  
+  return ptr;
+}

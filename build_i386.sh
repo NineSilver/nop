@@ -21,7 +21,7 @@ rm -f $(find ./nop -name "*.o") $(find ./lib -name "*.o")
 
 echo "[nop] Building nop kernel image..."
 
-export CFLAGS="-Iinclude -ffreestanding -O2 -fms-extensions -std=gnu89 -mno-red-zone -D__I386__ -D__NOP_KERNEL__ -D__NOP__"
+export CFLAGS="-Iinclude -ffreestanding -Os -fms-extensions -std=gnu89 -mno-red-zone -D__I386__ -D__NOP_KERNEL__ -D__NOP__"
 export ASMFLAGS="-fcoff -D__I386__ -D__NOP_KERNEL__ -D__NOP__"
 
 find ./nop -name "*.c" -exec i386-coff-gcc -c ${CFLAGS} {} -o {}.o \;
@@ -31,7 +31,7 @@ find ./lib -name "*.c" -exec i386-coff-gcc -c ${CFLAGS} {} -o {}.o \;
 find ./lib -name "*.asm" -exec nasm ${ASMFLAGS}{} -o {}.o \;
 
 i386-coff-gcc -T files/i386/linker.ld -o build/nop_i386.exe -ffreestanding -O2 -nostdlib -lgcc \
-  $(find ./nop -name "*.o") $(find ./lib -name "*.o")
+  $(find ./nop -name "*.o") $(find ./lib -name "*.o") -s
 
 make_test_iso() {
   mkdir -p iso/boot/grub

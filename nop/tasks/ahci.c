@@ -13,8 +13,54 @@ const start_task_t ahci_start_task = (start_task_t){
   .done = 0,
 };
 
-static void ahci_init_port(hba_table_t *table, int port) {
+static void ahci_start_engine(hba_port_t *port) {
+  while (port->cmd & 0x8000);
   
+  port->cmd |= 0x0010;
+  port->cmd |= 0x0001; 
+}
+
+static void ahci_stop_engine(hba_port_t *port) {
+  port->cmd &= ~0xFFFFFFFE;
+  port->cmd &= ~0xFFFFFFEF;
+  
+  while (port->cmd & 0xC000);
+}
+
+static void ahci_init_port(hba_port_t *port) {
+  /* Stop command engine. */
+  ahci_stop_engine(port);
+  
+  /* 1024 -> Command list. */
+  /*  256 -> FIS. */
+  /* 8192 -> Command table. */
+  
+  const size_t total_size = 9472;
+  
+  /* Ensure 1K alignment for every structure here. */
+  uint64_t port_buffer = (size_t)(page_alloc((total_size + (PAGE_SIZE - 1)) / PAGE_SIZE, 1024));
+  
+  /* Clear all allocated memory. */
+  memset((void *)(port_buffer), 0, total_size);
+  
+  port->clb = (uint32_t)(port_buffer);
+  port->clbu = (uint32_t)(port_buffer >> 32);
+  
+  port->fb = (uint32_t)(port_buffer + 1024);
+  port->fbu = (uint32_t)((port_buffer + 1024) >> 32);
+  
+  hba_cmd_header_t *header = (void *)(port_buffer);
+  size_t i;
+  
+  for (i = 0; i < 32; i++) {
+    header[i].prdtl = 8;
+    
+    header[i].ctba = (uint32_t)(port_buffer + 1280 + 256 * i);
+    header[i].ctbau = (uint32_t)((port_buffer + 1280 + 256 * i) >> 32);
+  }
+  
+  /* Restart command engine. */
+  ahci_start_engine(port);
 }
 
 static int ahci_init(int id) {
@@ -24,8 +70,6 @@ static int ahci_init(int id) {
   device_read(id, &pci_class, sizeof(uint16_t));
   
   if (pci_class != 0x0106) {
-    /* Not a Serial ATA device. */
-    
     log(LOG_DEBUG, "[ahci] PCI device (open at %d) not an AHCI controller (got class 0x%04X).\n", id, pci_class);
     return 0;
   }
@@ -42,8 +86,6 @@ static int ahci_init(int id) {
   page_mark(page_start, page_start + page_count, PAGE_USED);
   
   if (!(table->ghc & 0x80000000)) {
-    /* The device isn't set up as an AHCI controller, oops. */
-    
     log(LOG_DEBUG, "[ahci] AHCI controller (open at %d) in IDE mode.\n", id);
     return 0;
   }
@@ -76,7 +118,7 @@ static int ahci_init(int id) {
     }
     
     log(LOG_INFO, "  => Found SATA drive at port %u.\n", i);
-    ahci_init_port(table, i);
+    ahci_init_port(table->ports + i);
   }
 }
 

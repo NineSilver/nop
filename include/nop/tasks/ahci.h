@@ -11,6 +11,8 @@
 typedef volatile struct hba_port_t hba_port_t;
 typedef volatile struct hba_table_t hba_table_t;
 
+typedef volatile struct hba_cmd_header_t hba_cmd_header_t;
+
 struct hba_port_t {
   uint32_t clb;          /* 0x00: Command list base address, 1K-byte aligned. */
   uint32_t clbu;         /* 0x04: Command list base address upper 32 bits. */
@@ -54,6 +56,30 @@ struct hba_table_t {
   
   /* Ports. */
   hba_port_t ports[32];
+} __attribute__((packed));
+
+struct hba_cmd_header_t {
+  uint8_t cfl: 5; /* Command FIS length in DWORDs, 2 to 16. */
+  uint8_t a: 1;   /* Is ATAPI. */
+  uint8_t w: 1;   /* Write direction, 1: H2D, 0: D2H. */
+  uint8_t p: 1;   /* Is prefetchable. */
+  
+  uint8_t r: 1;    /* Reset. */
+  uint8_t b: 1;    /* BIST. */
+  uint8_t c: 1;    /* Clear busy upon R_OK. */
+  uint8_t zero: 1; /* Zero. */
+  uint8_t pmp: 4;  /* Port multiplier port. */
+  
+  /* Physical region descriptor table length and transfer size. */
+  uint16_t prdtl;
+  uint32_t prdbc;
+  
+  /* Command table address. */
+  uint32_t ctba;
+  uint32_t ctbau;
+  
+  /* Reserved. */
+  uint32_t reserved[4];
 } __attribute__((packed));
 
 extern const start_task_t ahci_start_task;
