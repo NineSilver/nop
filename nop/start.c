@@ -79,7 +79,33 @@ void start(start_block_t *blocks, size_t block_count, start_task_t *tasks, size_
   int console_id = tree_open(&root, "$term0");
   device_write(console_id, text, strlen(text));
   
-  tree_show(&root, "/", 0);
+  int disk_id = tree_open(&root, "$disk0");
+  uint8_t buffer[512];
+  
+  size_t read_count = device_read(disk_id, buffer, 512);
+  
+  for (i = 0; i < 32; i++) {
+    uint8_t ascii_buffer[17];
+    size_t j;
+    
+    for (j = 0; j < 16; j++) {
+      uint8_t chr = buffer[i * 16 + j];
+      log(LOG_INFO, "%02X%s", chr, (j % 8 == 7) ? "  " : " ");
+      
+      if (chr >= 32 && chr < 127) {
+        ascii_buffer[j] = chr;
+      } else {
+        ascii_buffer[j] = '.';
+      }
+    }
+    
+    ascii_buffer[16] = '\0';
+    log(LOG_INFO, "%s\n", ascii_buffer);
+  }
+  
+  log(LOG_INFO, "Read %u bytes.\n", read_count);
+  
+  /* tree_show(&root, "/", 0); */
   
   /* It's not like we can do much more here either... */
   for (;;);

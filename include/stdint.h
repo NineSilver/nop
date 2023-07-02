@@ -15,4 +15,7 @@ typedef __int32_t  int32_t;
 typedef __uint64_t uint64_t;
 typedef __int64_t  int64_t;
 
+typedef __uintmax_t uintmax_t;
+typedef __intmax_t  intmax_t;
+
 #endif

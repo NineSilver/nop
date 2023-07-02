@@ -91,11 +91,11 @@ size_t device_read(int id, void *ptr, size_t n) {
   return devices[id].read(devices + id, ptr, n);
 }
 
-void device_seek(int id, ssize_t offset, int seek_mode) {
+void device_seek(int id, intmax_t offset, int seek_mode) {
   return devices[id].seek(devices + id, offset, seek_mode);
 }
 
-size_t device_tell(int id) {
+uintmax_t device_tell(int id) {
   return devices[id].tell(devices + id);
 }
 

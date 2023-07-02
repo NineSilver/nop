@@ -8,10 +8,47 @@
 #define AHCI_SIG_SEMB  0xC33C0101
 #define AHCI_SIG_PM    0x96690101
 
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ  0x08
+
+#define HBA_PXIS_TFES 0x40000000
+
+enum {
+  FIS_TYPE_H2D       = 0x27, /* Register FIS - Host to device. */
+  FIS_TYPE_D2H       = 0x34, /* Register FIS - Device to host. */
+  FIS_TYPE_DMA_ACT   = 0x39, /* DMA activate FIS - Device to host. */
+  FIS_TYPE_DMA_SETUP = 0x41, /* DMA setup FIS - Bidirectional. */
+  FIS_TYPE_DATA      = 0x46, /* Data FIS - Bidirectional. */
+  FIS_TYPE_BIST      = 0x58, /* BIST activate FIS - Bidirectional. */
+  FIS_TYPE_PIO_SETUP = 0x5F, /* PIO setup FIS - Device to host. */
+  FIS_TYPE_DEV_BITS  = 0xA1, /* Set device bits FIS - Device to host. */
+};
+
+enum {
+  ATA_CMD_READ_DMA_EXT = 0x25,
+};
+
+typedef struct ahci_t ahci_t;
+
 typedef volatile struct hba_port_t hba_port_t;
 typedef volatile struct hba_table_t hba_table_t;
 
-typedef volatile struct hba_cmd_header_t hba_cmd_header_t;
+typedef struct hba_prdt_t hba_prdt_t;
+
+typedef struct hba_cmd_header_t hba_cmd_header_t;
+typedef struct hba_cmd_table_t hba_cmd_table_t;
+
+typedef struct fis_h2d_t fis_h2d_t;
+typedef struct fis_d2h_t fis_d2h_t;
+
+struct ahci_t {
+  hba_port_t *port;
+  
+  int sector_width; /* 9 for SATA drives, usually 11 for CD-ROMs. */
+  uint64_t count;
+  
+  uint64_t offset;
+};
 
 struct hba_port_t {
   uint32_t clb;          /* 0x00: Command list base address, 1K-byte aligned. */
@@ -58,6 +95,16 @@ struct hba_table_t {
   hba_port_t ports[32];
 } __attribute__((packed));
 
+struct hba_prdt_t {
+  uint32_t dba;      /* Data base address. */
+  uint32_t dbau;     /* Data base address, 64-bit ext. */
+  uint32_t reserved; /* Reserved. */
+  
+  uint32_t dbc: 22; /* Byte count, 4 MiB max. */
+  uint32_t zero: 9; /* Always zero, reserved. */
+  uint32_t i: 1;    /* Interrupt on completion. */
+} __attribute__((packed));
+
 struct hba_cmd_header_t {
   uint8_t cfl: 5; /* Command FIS length in DWORDs, 2 to 16. */
   uint8_t a: 1;   /* Is ATAPI. */
@@ -80,6 +127,62 @@ struct hba_cmd_header_t {
   
   /* Reserved. */
   uint32_t reserved[4];
+} __attribute__((packed));
+
+struct hba_cmd_table_t {
+  uint8_t cfis[64];  /* Command FIS. */
+  uint8_t acmd[16];  /* ATAPI command, either 12 or 16 bytes. */
+  
+  uint8_t reserved[48];
+  
+  /* Physical region descriptor table entries, 0 to 65535. */
+  hba_prdt_t prdt_entry[0];
+} __attribute__((packed));
+
+struct fis_h2d_t {
+  uint8_t fis_type; /* FIS_TYPE_H2D */
+  
+  uint8_t pmport: 4; /* Port multiplier. */
+  uint8_t zero: 3;   /* Always zero. */
+  uint8_t c: 1;      /* Always zero. */
+  
+  uint8_t command;     /* Command register. */
+  uint8_t feature_low; /* Feature register (low). */
+  
+  uint32_t lba_low: 24; /* LBA register (low). */
+  uint32_t device: 8;   /* Device register. */
+  
+  uint32_t lba_high: 24;    /* LBA register (high). */
+  uint32_t feature_high: 8; /* Feature register (high). */
+  
+  uint16_t count;
+  
+  uint8_t icc;
+  uint8_t control;
+  
+  uint8_t reserved[4];
+} __attribute__((packed));
+
+struct fis_d2h_t {
+  uint8_t fis_type; /* FIS_TYPE_D2H */
+  
+  uint8_t pmport: 4; /* Port multiplier. */
+  uint8_t zero_0: 2; /* Always zero. */
+  uint8_t i: 1;      /* Interrupt bit. */
+  uint8_t zero_1: 1; /* Always zero. */
+  
+  uint8_t status; /* Status register. */
+  uint8_t error;  /* Error register. */
+  
+  uint32_t lba_low: 24; /* LBA register (low). */
+  uint32_t device: 8;   /* Device register. */
+  
+  uint32_t lba_high: 24;  /* LBA register (high). */
+  uint32_t reserved_0: 8; /* Reserved. */
+  
+  uint16_t count;
+  
+  uint8_t reserved_1[6];
 } __attribute__((packed));
 
 extern const start_task_t ahci_start_task;

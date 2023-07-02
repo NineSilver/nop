@@ -2,6 +2,7 @@
 #define __NOP_DEVICE_H__
 
 #include <stddef.h>
+#include <stdint.h>
 #include <ssize.h>
 
 #define DEVICE_NAME_LENGTH 15
@@ -36,13 +37,13 @@ struct device_t {
   void *data;
   int free;
   
-  int    (*feature)(device_t *device, int feature);
-  void   (*commit)(device_t *device);
-  size_t (*write)(device_t *device, const void *ptr, size_t n);
-  size_t (*read)(device_t *device, void *ptr, size_t n);
-  void   (*seek)(device_t *device, ssize_t offset, int seek_mode);
-  size_t (*tell)(device_t *device);
-  void   (*trim)(device_t *device);
+  int       (*feature)(device_t *device, int feature);
+  void      (*commit)(device_t *device);
+  size_t    (*write)(device_t *device, const void *ptr, size_t n);
+  size_t    (*read)(device_t *device, void *ptr, size_t n);
+  void      (*seek)(device_t *device, intmax_t offset, int seek_mode);
+  uintmax_t (*tell)(device_t *device);
+  void      (*trim)(device_t *device);
 };
 
 extern device_t *devices;
@@ -52,12 +53,12 @@ int  device_add(device_t device, int no_suffix);
 int  device_find(const char *name);
 void device_free(int id);
 
-int    device_feature(int id, int feature);
-void   device_commit(int id);
-size_t device_write(int id, const void *ptr, size_t n);
-size_t device_read(int id, void *ptr, size_t n);
-void   device_seek(int id, ssize_t offset, int seek_mode);
-size_t device_tell(int id);
-void   device_trim(int id);
+int       device_feature(int id, int feature);
+void      device_commit(int id);
+size_t    device_write(int id, const void *ptr, size_t n);
+size_t    device_read(int id, void *ptr, size_t n);
+void      device_seek(int id, intmax_t offset, int seek_mode);
+uintmax_t device_tell(int id);
+void      device_trim(int id);
 
 #endif

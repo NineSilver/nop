@@ -83,11 +83,11 @@ static size_t text_device_read(device_t *device, void *ptr, size_t n) {
   return 0; /* Nah-ah, just check the friggin' features, dammit! */
 }
 
-static void text_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+static void text_device_seek(device_t *device, intmax_t offset, int seek_mode) {
   return; /* See read(). */
 }
 
-static size_t text_device_tell(device_t *device) {
+static uintmax_t text_device_tell(device_t *device) {
   return 0; /* See read(). */
 }
 

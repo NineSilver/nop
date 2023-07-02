@@ -56,7 +56,7 @@ static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
   return device_read(pci_device->id, ptr, n);
 }
 
-static void pci_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+static void pci_device_seek(device_t *device, intmax_t offset, int seek_mode) {
   const size_t size = 0x0100;
   
   pci_device_t *pci_device = device->data;
@@ -79,7 +79,7 @@ static void pci_device_seek(device_t *device, ssize_t offset, int seek_mode) {
   pci_device->offset = current;
 }
 
-static size_t pci_device_tell(device_t *device) {
+static uintmax_t pci_device_tell(device_t *device) {
   pci_device_t *pci_device = device->data;
   return pci_device->offset;
 }

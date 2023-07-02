@@ -116,7 +116,7 @@ static size_t pci_device_read(device_t *device, void *ptr, size_t n) {
   device->data = (void *)(offset);
 }
 
-static void pci_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+static void pci_device_seek(device_t *device, intmax_t offset, int seek_mode) {
   const size_t size = 0x01000000; /* 16 MiB total, 2^16 devices times 2^8 offsets. */
   ssize_t current = (size_t)(device->data); /* Signed due to negative wrapping. */
   
@@ -137,7 +137,7 @@ static void pci_device_seek(device_t *device, ssize_t offset, int seek_mode) {
   device->data = (void *)(current);
 }
 
-static size_t pci_device_tell(device_t *device) {
+static uintmax_t pci_device_tell(device_t *device) {
   return (size_t)(device->data);
 }
 

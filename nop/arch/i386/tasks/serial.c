@@ -60,11 +60,11 @@ static size_t serial_device_read(device_t *device, void *ptr, size_t n) {
   return n;
 }
 
-static void serial_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+static void serial_device_seek(device_t *device, intmax_t offset, int seek_mode) {
   return;
 }
 
-static size_t serial_device_tell(device_t *device) {
+static uintmax_t serial_device_tell(device_t *device) {
   return 0;
 }
 

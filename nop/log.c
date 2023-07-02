@@ -149,11 +149,17 @@ void log(int level, const char *format, ...) {
           putn_opt(va_arg(args, int), 10, 0, pad_aln, pad_len, pad_chr);
           break;
           
+        case 'p':
+          pad_len = sizeof(size_t) * 2;
+          pad_chr = '0';
         case 'x':
           putn_opt(va_arg(args, int), 16, 0, pad_aln, pad_len, pad_chr);
           break;
           
-        case 'X': case 'p':
+        case 'P':
+          pad_len = sizeof(size_t) * 2;
+          pad_chr = '0';
+        case 'X':
           putn_opt(va_arg(args, int), 16, 1, pad_aln, pad_len, pad_chr);
           break;
           

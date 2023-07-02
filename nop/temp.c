@@ -41,7 +41,7 @@ static size_t temp_device_read(device_t *device, void *ptr, size_t n) {
   return n;
 }
 
-static void temp_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+static void temp_device_seek(device_t *device, intmax_t offset, int seek_mode) {
   temp_t *temp = device->data;
   ssize_t current = temp->offset; /* Signed due to negative wrapping. */
   
@@ -62,7 +62,7 @@ static void temp_device_seek(device_t *device, ssize_t offset, int seek_mode) {
   temp->offset = current;
 }
 
-static size_t temp_device_tell(device_t *device) {
+static uintmax_t temp_device_tell(device_t *device) {
   temp_t *temp = device->data;
   return temp->offset;
 }

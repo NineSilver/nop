@@ -15,4 +15,7 @@ typedef signed long long   __int64_t;
 
 typedef __int32_t __ssize_t;
 
+typedef __uint64_t __uintmax_t;
+typedef __int64_t __intmax_t;
+
 #endif
