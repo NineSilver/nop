@@ -22,8 +22,8 @@ TODO
 - nop
   - [x] Device system (nop/device).
   - [x] Tree system (nop/tree).
-    - [ ] root
-    - [ ] pci
+    - [x] root
+    - [x] pci
     - [ ] net
     - [ ] mbr
     - [ ] gpt
@@ -35,16 +35,17 @@ TODO
   - [ ] Running unit system (nop/unit).
     - [ ] Kernel call handling (with BSON).
   - [ ] Make codebase SMP-friendly (sounds like a huge task to me, I have no idea how to...).
+  - Platform-agnostic drivers and tasks
+    - [x] AHCI (nop/tasks/ahci).
 - i386
   - [x] Entry point.
-  - PCI (nop/arch/i386/pci).
+  - PCI (nop/arch/i386/tasks/pci).
     - [ ] Detect PCI presence instead of assuming it's there.
-    - [ ] Write support.
+    - [x] Write support.
     - [x] Read support.
-  - [x] IDT event triggering (nop/arch/i386/idt).
-  - [x] VGA text mode (nop/arch/i386/text).
-  - [x] Serial ports (nop/arch/i386/serial).
-  - [ ] AHCI (nop/arch/i386/ahci).
+  - [x] IDT event triggering (nop/arch/i386/tasks/idt).
+  - [x] VGA text mode (nop/arch/i386/tasks/text).
+  - [x] Serial ports (nop/arch/i386/tasks/serial).
 - x86_64
   - [ ] Entry point.
 - armv7/v8

@@ -25,7 +25,10 @@ enum {
 };
 
 enum {
-  ATA_CMD_READ_DMA_EXT = 0x25,
+  ATA_CMD_WRITE_DMA_EXT = 0x35,
+  ATA_CMD_READ_DMA_EXT  = 0x25,
+  ATA_CMD_IDENTIFY      = 0xEC,
+  ATA_CMD_IDENTIFY_DMA  = 0xEE,
 };
 
 typedef struct ahci_t ahci_t;
@@ -43,6 +46,7 @@ typedef struct fis_d2h_t fis_d2h_t;
 
 struct ahci_t {
   hba_port_t *port;
+  int can_lba48;
   
   int sector_width; /* 9 for SATA drives, usually 11 for CD-ROMs. */
   uint64_t count;
@@ -108,7 +112,7 @@ struct hba_prdt_t {
 struct hba_cmd_header_t {
   uint8_t cfl: 5; /* Command FIS length in DWORDs, 2 to 16. */
   uint8_t a: 1;   /* Is ATAPI. */
-  uint8_t w: 1;   /* Write direction, 1: H2D, 0: D2H. */
+  uint8_t w: 1;   /* Write direction. */
   uint8_t p: 1;   /* Is prefetchable. */
   
   uint8_t r: 1;    /* Reset. */

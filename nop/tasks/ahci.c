@@ -43,7 +43,7 @@ static int ahci_find_slot(hba_port_t *port) {
   return -1;
 }
 
-static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t count) {
+static int ahci_send_h2d(hba_port_t *port, fis_h2d_t fis, const void *ptr, size_t n) {
   port->is = 0xFFFFFFFF;
   int slot = ahci_find_slot(port);
   
@@ -55,8 +55,8 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
   hba_cmd_header_t *header = (hba_cmd_header_t *)(header_int) + slot;
   
   header->cfl = sizeof(fis_h2d_t) / sizeof(uint32_t); /* Command FIS size. */
-  header->w = 0;                                      /* 0 = Device to host. */
-  header->prdtl = (uint16_t)((count - 1) >> 4) + 1;   /* PRDT entry count, one per 16 sectors plus one for the remaining. */
+  header->w = 0;                                      /* W = 0. */
+  header->prdtl = (uint16_t)((n - 1) >> 13) + 1;      /* PRDT entry count, one per 8192 bytes plus one for the remaining. */
   
   size_t table_int = (size_t)((uint64_t)(header->ctba) | ((uint64_t)(header->ctbau) << 32));
   hba_cmd_table_t *table = (hba_cmd_table_t *)(table_int);
@@ -71,25 +71,14 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
     table->prdt_entry[i].dbau = (uint32_t)(ptr_64 >> 32);
     
     table->prdt_entry[i].dbc = 8191;
-    ptr += 8192, count -= 16;
+    ptr += 8192, n -= 8192;
   }
   
   table->prdt_entry[i].dba = (uint32_t)(ptr_64 >> 0);
   table->prdt_entry[i].dbau = (uint32_t)(ptr_64 >> 32);
   
-  table->prdt_entry[i].dbc = (count << 9) - 1;
-  fis_h2d_t *fis = (fis_h2d_t *)(&table->cfis);
-  
-  fis->fis_type = FIS_TYPE_H2D;
-  fis->c = 1;
-  fis->command = ATA_CMD_READ_DMA_EXT;
-  
-  fis->device = (1 << 6);
-  
-  fis->lba_low = (uint32_t)(lba >> 0);
-  fis->lba_high = (uint32_t)(lba >> 24);
-  
-  fis->count = (uint16_t)(count);
+  table->prdt_entry[i].dbc = n;
+  *((fis_h2d_t *)(&table->cfis)) = fis;
   
   /* Give it enough time... */
   size_t spin = (1 << 22);
@@ -99,7 +88,6 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
   }
   
   if (!spin) {
-    log(LOG_ERROR, "[ahci] Port 0x%P is hung.\n", port);
     return 0;
   }
   
@@ -107,26 +95,100 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
   
   while (port->ci & (1 << slot)) {
     if (port->is & HBA_PXIS_TFES) {
-      log(LOG_ERROR, "[ahci] Failed to read sector on port 0x%P.", port);
       return 0;
     }
   }
   
   if (port->is & HBA_PXIS_TFES) {
-    log(LOG_ERROR, "[ahci] Failed to read sector on port 0x%P.", port);
     return 0;
   }
  
   return 1;
 }
 
+static int ahci_sector_write(hba_port_t *port, uint64_t lba, const void *ptr, size_t count) {
+  fis_h2d_t fis;
+  memset(&fis, 0, sizeof(fis_h2d_t));
+  
+  fis.fis_type = FIS_TYPE_H2D;
+  fis.c = 1;
+  fis.command = ATA_CMD_WRITE_DMA_EXT;
+  
+  fis.device = (1 << 6);
+  
+  fis.lba_low = (uint32_t)(lba >> 0);
+  fis.lba_high = (uint32_t)(lba >> 24);
+  
+  fis.count = (uint16_t)(count);
+  
+  if (!ahci_send_h2d(port, fis, ptr, count << 9)) {
+    log(LOG_ERROR, "[ahci] Failed to write sectors on port 0x%P.", port);
+    return 0;
+  }
+  
+  return 1;
+}
+
+static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t count) {
+  fis_h2d_t fis;
+  memset(&fis, 0, sizeof(fis_h2d_t));
+  
+  fis.fis_type = FIS_TYPE_H2D;
+  fis.c = 1;
+  fis.command = ATA_CMD_READ_DMA_EXT;
+  
+  fis.device = (1 << 6);
+  
+  fis.lba_low = (uint32_t)(lba >> 0);
+  fis.lba_high = (uint32_t)(lba >> 24);
+  
+  fis.count = (uint16_t)(count);
+  
+  if (!ahci_send_h2d(port, fis, ptr, count << 9)) {
+    log(LOG_ERROR, "[ahci] Failed to read sectors on port 0x%P.", port);
+    return 0;
+  }
+  
+  return 1;
+}
+
+static int ahci_identify(hba_port_t *port, ahci_t *ahci) {
+  fis_h2d_t fis;
+  memset(&fis, 0, sizeof(fis_h2d_t));
+  
+  fis.fis_type = FIS_TYPE_H2D;
+  fis.c = 1;
+  fis.command = ATA_CMD_IDENTIFY;
+  
+  uint16_t buffer[256];
+  
+  if (!ahci_send_h2d(port, fis, buffer, 512)) {
+    log(LOG_ERROR, "[ahci] Failed to process IDENTIFY DMA command on port 0x%P.", port);
+    return 0;
+  }
+  
+  ahci->can_lba48 = (buffer[83] >> 10) & 1;
+  ahci->sector_width = 9; /* TODO: Detect. */
+  
+  if (ahci->can_lba48) {
+    ahci->count = (uint64_t)(buffer[100]) + ((uint64_t)(buffer[101]) << 16) + ((uint64_t)(buffer[102]) << 32) + ((uint64_t)(buffer[103]) << 48);
+  } else {
+    ahci->count = (uint64_t)(buffer[60]) + ((uint64_t)(buffer[61]) << 16);
+  }
+  
+  return 1;
+}
+
 static int ahci_device_feature(device_t *device, int feature) {
+  ahci_t *ahci = device->data;
+  size_t sector_size = (1 << ahci->sector_width);
+  
   if (feature == FEATURE_PRESENT || feature == FEATURE_WRITE || feature == FEATURE_READ || feature == FEATURE_SEEK) {
     return 1;
   }
   
   if (feature == FEATURE_PAGE_SIZE) {
-    return 512;
+    return sector_size;
   }
   
   return 0;
@@ -137,12 +199,69 @@ static void ahci_device_commit(device_t *device) {
 }
 
 static size_t ahci_device_write(device_t *device, const void *ptr, size_t n) {
-  return 0;
+  ahci_t *ahci = device->data;
+  size_t sector_size = (1 << ahci->sector_width);
+  
+  if ((uint64_t)(n) > (ahci->count << ahci->sector_width) - ahci->offset) {
+    n = (size_t)((ahci->count << ahci->sector_width) - ahci->offset);
+  }
+  
+  uint8_t buffer[sector_size];
+  size_t write = 0;
+  
+  if (ahci->offset & (sector_size - 1)) {
+    write += sector_size - (ahci->offset & (sector_size - 1));
+    
+    if (write > n) {
+      write = n;
+    }
+    
+    if (!ahci_sector_read(ahci->port, ahci->offset >> ahci->sector_width, buffer, 1)) {
+      return 0;
+    }
+    
+    memcpy(buffer + (ahci->offset & (sector_size - 1)), ptr, write);
+    
+    if (!ahci_sector_write(ahci->port, ahci->offset >> ahci->sector_width, buffer, 1)) {
+      return 0;
+    }
+    
+    ptr += write, ahci->offset += write, n -= write;
+  }
+  
+  if (!ahci_sector_write(ahci->port, ahci->offset >> ahci->sector_width, ptr, n >> ahci->sector_width)) {
+    return write;
+  }
+  
+  size_t big_write = (n - (n & (sector_size - 1)));
+  
+  ptr += big_write, write += big_write, ahci->offset += big_write;
+  n &= (sector_size - 1);
+  
+  if (n) {
+    if (!ahci_sector_read(ahci->port, ahci->offset >> ahci->sector_width, buffer, 1)) {
+      return write;
+    }
+    
+    memcpy(buffer, ptr, n);
+    
+    if (!ahci_sector_write(ahci->port, ahci->offset >> ahci->sector_width, buffer, 1)) {
+      return write;
+    }
+    
+    write += n;
+  }
+  
+  return write;
 }
 
 static size_t ahci_device_read(device_t *device, void *ptr, size_t n) {
   ahci_t *ahci = device->data;
   size_t sector_size = (1 << ahci->sector_width);
+  
+  if ((uint64_t)(n) > (ahci->count << ahci->sector_width) - ahci->offset) {
+    n = (size_t)((ahci->count << ahci->sector_width) - ahci->offset);
+  }
   
   uint8_t buffer[sector_size];
   size_t read = 0;
@@ -184,11 +303,31 @@ static size_t ahci_device_read(device_t *device, void *ptr, size_t n) {
 }
 
 static void ahci_device_seek(device_t *device, intmax_t offset, int seek_mode) {
-  return;
+  ahci_t *ahci = device->data;
+  uint64_t size = (ahci->count << ahci->sector_width);
+  
+  int64_t current = ahci->offset; /* Signed due to negative wrapping. */
+  
+  if (seek_mode == SEEK_SET) {
+    current = offset;
+  } else if (seek_mode == SEEK_END) {
+    current = offset + size;
+  } else if (seek_mode == SEEK_CUR) {
+    current += offset;
+  }
+  
+  if (current < 0) {
+    current = 0;
+  } else if (current > size) {
+    current = size;
+  }
+  
+  ahci->offset = current;
 }
 
 static uintmax_t ahci_device_tell(device_t *device) {
-  return 0;
+  ahci_t *ahci = device->data;
+  return ahci->offset;
 }
 
 static void ahci_device_trim(device_t *device) {
@@ -233,9 +372,7 @@ static void ahci_init_port(hba_port_t *port) {
   ahci_t *ahci = malloc(sizeof(ahci_t));
   
   ahci->port = port;
-  
-  ahci->sector_width = 9;
-  ahci->count = 0; /* TODO */
+  ahci_identify(port, ahci);
   
   ahci->offset = 0;
   
@@ -254,6 +391,8 @@ static void ahci_init_port(hba_port_t *port) {
     .tell = ahci_device_tell,
     .trim = ahci_device_trim,
   }, 0);
+  
+  log(LOG_INFO, "  => LBA size of 0x%08X%08X, can_lba48 = %d.\n", (uint32_t)(ahci->count >> 32), (uint32_t)(ahci->count), ahci->can_lba48);
 }
 
 static int ahci_init(int id) {
