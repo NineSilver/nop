@@ -6,6 +6,7 @@
 #include <nop/log.h>
 #include <stdint.h>
 #include <string.h>
+#include <alloc.h>
 #include <nop.h>
 
 const start_task_t ahci_start_task = (start_task_t){
@@ -50,27 +51,31 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
     return 0;
   }
   
-  hba_cmd_header_t *header = (hba_cmd_header_t *)((size_t)(port->clb) | ((size_t)(port->clbu) << 32)) + slot;
+  size_t header_int = (size_t)((uint64_t)(port->clb) | ((uint64_t)(port->clbu) << 32));
+  hba_cmd_header_t *header = (hba_cmd_header_t *)(header_int) + slot;
   
   header->cfl = sizeof(fis_h2d_t) / sizeof(uint32_t); /* Command FIS size. */
   header->w = 0;                                      /* 0 = Device to host. */
   header->prdtl = (uint16_t)((count - 1) >> 4) + 1;   /* PRDT entry count, one per 16 sectors plus one for the remaining. */
   
-  hba_cmd_table_t *table = (hba_cmd_table_t *)((size_t)(header->ctba) | ((size_t)(header->ctbau) << 32));
+  size_t table_int = (size_t)((uint64_t)(header->ctba) | ((uint64_t)(header->ctbau) << 32));
+  hba_cmd_table_t *table = (hba_cmd_table_t *)(table_int);
+  
   memset(table, 0, sizeof(hba_cmd_table_t) + header->prdtl * sizeof(hba_prdt_t));
   
+  uint64_t ptr_64 = (size_t)(ptr);
   size_t i;
   
   for (i = 0; i < header->prdtl - 1; i++) {
-    table->prdt_entry[i].dba = (uint32_t)((size_t)(ptr) >> 0);
-    table->prdt_entry[i].dbau = (uint32_t)((size_t)(ptr) >> 32);
+    table->prdt_entry[i].dba = (uint32_t)(ptr_64 >> 0);
+    table->prdt_entry[i].dbau = (uint32_t)(ptr_64 >> 32);
     
     table->prdt_entry[i].dbc = 8191;
     ptr += 8192, count -= 16;
   }
   
-  table->prdt_entry[i].dba = (uint32_t)((size_t)(ptr) >> 0);
-  table->prdt_entry[i].dbau = (uint32_t)((size_t)(ptr) >> 32);
+  table->prdt_entry[i].dba = (uint32_t)(ptr_64 >> 0);
+  table->prdt_entry[i].dbau = (uint32_t)(ptr_64 >> 32);
   
   table->prdt_entry[i].dbc = (count << 9) - 1;
   fis_h2d_t *fis = (fis_h2d_t *)(&table->cfis);
@@ -82,7 +87,7 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
   fis->device = (1 << 6);
   
   fis->lba_low = (uint32_t)(lba >> 0);
-  fis->lba_high = (uint32_t)(lba >> 32);
+  fis->lba_high = (uint32_t)(lba >> 24);
   
   fis->count = (uint16_t)(count);
   
@@ -178,11 +183,11 @@ static size_t ahci_device_read(device_t *device, void *ptr, size_t n) {
   return read;
 }
 
-static void ahci_device_seek(device_t *device, ssize_t offset, int seek_mode) {
+static void ahci_device_seek(device_t *device, intmax_t offset, int seek_mode) {
   return;
 }
 
-static size_t ahci_device_tell(device_t *device) {
+static uintmax_t ahci_device_tell(device_t *device) {
   return 0;
 }
 
@@ -204,7 +209,7 @@ static void ahci_init_port(hba_port_t *port) {
   uint64_t port_buffer = (size_t)(page_alloc((total_size + (PAGE_SIZE - 1)) / PAGE_SIZE, 1024));
   
   /* Clear all allocated memory. */
-  memset((void *)(port_buffer), 0, total_size);
+  memset((void *)((size_t)(port_buffer)), 0, total_size);
   
   port->clb = (uint32_t)(port_buffer);
   port->clbu = (uint32_t)(port_buffer >> 32);
@@ -212,7 +217,7 @@ static void ahci_init_port(hba_port_t *port) {
   port->fb = (uint32_t)(port_buffer + 1024);
   port->fbu = (uint32_t)((port_buffer + 1024) >> 32);
   
-  hba_cmd_header_t *header = (void *)(port_buffer);
+  hba_cmd_header_t *header = (void *)((size_t)(port_buffer));
   size_t i;
   
   for (i = 0; i < 32; i++) {
