@@ -25,7 +25,7 @@ static void root_mount(tree_t *tree) {
     }
     
     if (found) {
-      break;
+      continue;
     }
     
     strcpy(child.name + 1, devices[i].name);
@@ -102,7 +102,6 @@ static int root_close(tree_t *tree, int id) {
 
 int root_init(tree_t *tree, int id) {
   if (id >= 0) {
-    log(LOG_DEBUG, "[root] Cannot mount 'root' at 0x%08X, as it has a device attached (%d).\n", tree, id);
     return 0;
   }
   
@@ -114,6 +113,6 @@ int root_init(tree_t *tree, int id) {
   tree->delete = root_delete;
   tree->close = root_close;
   
-  log(LOG_INFO, "[root] Mounted 'root' at 0x%08X.\n", tree);
+  log("[root] Mounted 'root' at 0x%08X.\n", tree);
   return 1;
 }

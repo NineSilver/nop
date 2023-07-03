@@ -6,7 +6,7 @@
 uint8_t *page_bitmap;
 
 void page_init(void *bitmap) {
-  log(LOG_DEBUG, "[page] Page bitmap at 0x%08X.\n", bitmap);
+  log("[page] Page bitmap at 0x%08X.\n", bitmap);
   
   page_bitmap = bitmap;
   page_mark(0, PAGE_COUNT, PAGE_USED);
@@ -60,7 +60,7 @@ void *page_alloc(size_t n, size_t step) {
     }
   }
   
-  log(LOG_CRITICAL, "[page] Could not allocate %u pages: Not enough contiguous free space.\n", n);
+  log("[page] Could not allocate %u pages: Not enough contiguous free space.\n", n);
   return NULL;
 }
 

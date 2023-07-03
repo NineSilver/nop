@@ -122,7 +122,7 @@ static int ahci_sector_write(hba_port_t *port, uint64_t lba, const void *ptr, si
   fis.count = (uint16_t)(count);
   
   if (!ahci_send_h2d(port, fis, ptr, count << 9)) {
-    log(LOG_ERROR, "[ahci] Failed to write sectors on port 0x%P.", port);
+    log("[ahci] Failed to write sectors on port 0x%P.", port);
     return 0;
   }
   
@@ -145,7 +145,7 @@ static int ahci_sector_read(hba_port_t *port, uint64_t lba, void *ptr, size_t co
   fis.count = (uint16_t)(count);
   
   if (!ahci_send_h2d(port, fis, ptr, count << 9)) {
-    log(LOG_ERROR, "[ahci] Failed to read sectors on port 0x%P.", port);
+    log("[ahci] Failed to read sectors on port 0x%P.", port);
     return 0;
   }
   
@@ -163,7 +163,7 @@ static int ahci_identify(hba_port_t *port, ahci_t *ahci) {
   uint16_t buffer[256];
   
   if (!ahci_send_h2d(port, fis, buffer, 512)) {
-    log(LOG_ERROR, "[ahci] Failed to process IDENTIFY DMA command on port 0x%P.", port);
+    log("[ahci] Failed to process IDENTIFY DMA command on port 0x%P.", port);
     return 0;
   }
   
@@ -392,7 +392,7 @@ static void ahci_init_port(hba_port_t *port) {
     .trim = ahci_device_trim,
   }, 0);
   
-  log(LOG_INFO, "  => LBA size of 0x%08X%08X, can_lba48 = %d.\n", (uint32_t)(ahci->count >> 32), (uint32_t)(ahci->count), ahci->can_lba48);
+  log("  => LBA size of 0x%08X%08X, can_lba48 = %d.\n", (uint32_t)(ahci->count >> 32), (uint32_t)(ahci->count), ahci->can_lba48);
 }
 
 static int ahci_init(int id) {
@@ -402,7 +402,6 @@ static int ahci_init(int id) {
   device_read(id, &pci_class, sizeof(uint16_t));
   
   if (pci_class != 0x0106) {
-    log(LOG_DEBUG, "[ahci] PCI device (open at %d) not an AHCI controller (got class 0x%04X).\n", id, pci_class);
     return 0;
   }
   
@@ -418,11 +417,11 @@ static int ahci_init(int id) {
   page_mark(page_start, page_start + page_count, PAGE_USED);
   
   if (!(table->ghc & 0x80000000)) {
-    log(LOG_DEBUG, "[ahci] AHCI controller (open at %d) in IDE mode.\n", id);
+    log("[ahci] AHCI controller (open at %d) in IDE mode.\n", id);
     return 0;
   }
   
-  log(LOG_INFO, "[ahci] Found an AHCI controller, HBA table at 0x%P.\n", table);
+  log("[ahci] Found an AHCI controller, HBA table at 0x%P.\n", table);
   size_t i;
   
   for (i = 0; i < 32; i++) {
@@ -439,17 +438,17 @@ static int ahci_init(int id) {
     uint32_t sig = table->ports[i].sig;
     
     if (sig == AHCI_SIG_ATAPI) {
-      log(LOG_WARNING, "  => Port %u has an ATAPI device, not implemented.\n", i);
+      log("  => Port %u has an ATAPI device, not implemented.\n", i);
       continue;
     } else if (sig == AHCI_SIG_SEMB) {
-      log(LOG_WARNING, "  => Port %u has an SEMB device, not implemented.\n", i);
+      log("  => Port %u has an SEMB device, not implemented.\n", i);
       continue;
     } else if (sig == AHCI_SIG_PM) {
-      log(LOG_WARNING, "  => Port %u has a port multiplier, not implemented.\n", i);
+      log("  => Port %u has a port multiplier, not implemented.\n", i);
       continue;
     }
     
-    log(LOG_INFO, "  => Found SATA drive at port %u.\n", i);
+    log("  => Found SATA drive at port %u.\n", i);
     ahci_init_port(table->ports + i);
   }
 }

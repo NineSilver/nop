@@ -36,22 +36,22 @@ void i386_start_c(void *tags) {
   log_early(text_write);
   /* log_early(dummy_write); */
   
-  log(LOG_DEBUG, "[i386] .text/.data => (0x%08X - 0x%08X)\n", &i386_load_start, &i386_load_end);
-  log(LOG_DEBUG, "[i386] .bss => (0x%08X - 0x%08X)\n", &i386_bss_start, &i386_bss_end);
+  log("[i386] .text/.data => (0x%08X - 0x%08X)\n", &i386_load_start, &i386_load_end);
+  log("[i386] .bss => (0x%08X - 0x%08X)\n", &i386_bss_start, &i386_bss_end);
   
   /* Iterate through all the Multiboot2 tags. */
   
-  log(LOG_DEBUG, "[i386] Multiboot2 data found at 0x%08X.\n", tags);
+  log("[i386] Multiboot2 data found at 0x%08X.\n", tags);
   
   size_t total_size = *((uint32_t *)(tags));
   tags += 8;
   
-  log(LOG_DEBUG, "[i386] Iterating through all Multiboot2 tags...\n");
+  log("[i386] Iterating through all Multiboot2 tags...\n");
   
   for (i = 0; i < total_size;) {
     struct multiboot_tag *tag = (void *)(tags + i);
     
-    log(LOG_DEBUG, "- Multiboot2 tag of type %u (i = %u).\n", tag->type, i);
+    log("- Multiboot2 tag of type %u (i = %u).\n", tag->type, i);
     
     if (tag->type == MULTIBOOT_TAG_TYPE_END) {
       break;
@@ -61,7 +61,7 @@ void i386_start_c(void *tags) {
       size_t entry_count = (tag_mmap->size - sizeof(struct multiboot_tag_mmap)) / sizeof(struct multiboot_mmap_entry);
       size_t j;
       
-      log(LOG_DEBUG, "  => Memory map tag with %u entries.\n", entry_count);
+      log("  => Memory map tag with %u entries.\n", entry_count);
       
       blocks = (void *)(&i386_bss_start);
       block_count = 0;

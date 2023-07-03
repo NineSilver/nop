@@ -103,7 +103,7 @@ static void putn_opt(int num, int base, int upper, int pad_aln, int pad_len, cha
   puts_opt(buffer + offset, pad_aln, pad_len, pad_chr);
 }
 
-void log(int level, const char *format, ...) {
+void log(const char *format, ...) {
   va_list args;
   va_start(args, format);
   

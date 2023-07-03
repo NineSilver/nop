@@ -1,4 +1,5 @@
 #include <nop/tree/root.h>
+#include <nop/tree/mbr.h>
 #include <nop/tree/pci.h>
 #include <nop/tree.h>
 #include <nop/log.h>
@@ -8,6 +9,7 @@
 
 const tree_type_t tree_types[] = {
   (tree_type_t){root_init},
+  (tree_type_t){mbr_init},
   (tree_type_t){pci_init},
 };
 
@@ -134,9 +136,9 @@ int tree_close(tree_t *tree, int id) {
 
 void tree_show(tree_t *tree, const char *path, int indent) {
   if (indent) {
-    log(LOG_INFO, "%*s- %s:\n", (indent - 1) * 2, "", path);
+    log("%*s- %s:\n", (indent - 1) * 2, "", path);
   } else {
-    log(LOG_INFO, "%s:\n", path);
+    log("%s:\n", path);
   }
   
   int id = tree_list(tree, path);
@@ -160,7 +162,7 @@ void tree_show(tree_t *tree, const char *path, int indent) {
     if (entry.can_list) {
       tree_show(tree, buffer, indent + 1);
     } else {
-      log(LOG_INFO, "%*s- %s\n", indent * 2, "", buffer);
+      log("%*s- %s\n", indent * 2, "", buffer);
     }
   }
   

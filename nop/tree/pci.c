@@ -100,9 +100,7 @@ static int pci_open(tree_t *tree, const char *path) {
   device->id = pci->id;
   device->offset = 0;
   
-  device->vendor_id = str_to_ulong(16, path + 0, 4);
-  device->device_id = str_to_ulong(16, path + 5, 4);
-  device->addr = str_to_ulong(16, path + 10, 4);
+  device->addr = str_to_ulong(16, path, 4);
   
   device_add((device_t){
     .name = "pci_open",
@@ -133,12 +131,8 @@ static int pci_list(tree_t *tree, const char *path) {
   size_t i;
   
   for (i = 0; i < pci->device_count; i++) {
-    ulong_to_str_align(pci->devices[i].vendor_id, 16, entry.name, 4);
-    ulong_to_str_align(pci->devices[i].device_id, 16, entry.name + 5, 4);
-    ulong_to_str_align(pci->devices[i].addr, 16, entry.name + 10, 4);
-    
-    entry.name[4] = '_';
-    entry.name[9] = '_';
+    ulong_to_str_align(pci->devices[i].addr, 16, entry.name, 4);
+    entry.name[4] = '\0';
     
     entry.can_open = 1;
     entry.can_list = 0;
@@ -172,8 +166,6 @@ static pci_t *pci_push(pci_t *pci, uint16_t vendor_id, uint16_t device_id, uint1
     .id = pci->id,
     .offset = 0,
     
-    .vendor_id = vendor_id,
-    .device_id = device_id,
     .addr = addr,
   };
   
@@ -197,8 +189,6 @@ static pci_t *pci_test(pci_t *pci, uint16_t addr) {
       continue;
     }
     
-    /* log(LOG_DEBUG, "%04X_%04X_%04X\n", vendor_id, device_id, addr); */
-    
     pci = pci_push(pci, vendor_id, device_id, addr);
     
     if (!i) {
@@ -220,19 +210,16 @@ static pci_t *pci_test(pci_t *pci, uint16_t addr) {
 
 int pci_init(tree_t *tree, int id) {
   if (id < 0 || !device_feature(id, FEATURE_PRESENT)) {
-    log(LOG_DEBUG, "[pci] Cannot mount 'pci' at 0x%08X, as it does not have a device attached.\n", tree);
     return 0;
   }
   
   if (memcmp(tree->name, "$pci", 4)) {
     /* TODO: Do this in a cleaner way, maybe don't even require this? */
-    
-    log(LOG_DEBUG, "[pci] Cannot mount 'pci' at 0x%08X, as it is not named '$pci*'.\n", tree);
     return 0;
   }
   
   if (!device_feature(id, FEATURE_WRITE) || !device_feature(id, FEATURE_READ) || !device_feature(id, FEATURE_SEEK)) {
-    log(LOG_DEBUG, "[pci] Cannot mount 'pci' at 0x%08X, as it does not have the needed features..\n", tree);
+    log("[pci] Cannot mount 'pci' at 0x%08X, as it does not have the needed features..\n", tree);
     return 0;
   }
   
@@ -257,8 +244,8 @@ int pci_init(tree_t *tree, int id) {
   tree->delete = pci_delete;
   tree->close = pci_close;
   
-  log(LOG_INFO, "[pci] Mounted 'pci' at 0x%08X, attached to device %d.\n", tree, id);
-  log(LOG_INFO, "  => Found %u PCI devices.\n", pci->device_count);
+  log("[pci] Mounted 'pci' at 0x%08X, attached to device %d.\n", tree, id);
+  log("  => Found %u PCI devices.\n", pci->device_count);
   
   return 1;
 }

@@ -43,7 +43,7 @@ int device_add(device_t device, int no_suffix) {
       }
       
       if (devices[i].is_public) {
-        log(LOG_INFO, "[device] Added device '%s'.\n", devices[i].name);
+        log("[device] Added device '%s'.\n", devices[i].name);
       }
       
       device_used++;
